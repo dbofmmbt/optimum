@@ -11,3 +11,7 @@ categories = ["algorithms", "science"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+itertools = "0.10.3"
+ordered-float = "2.8.0"
+rand = "0.8.4"
+thiserror = "1.0.30"
