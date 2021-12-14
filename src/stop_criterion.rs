@@ -1,4 +1,4 @@
-use crate::percentage::Percentage;
+use crate::components::Percentage;
 
 mod iter_criterion;
 mod time_criterion;

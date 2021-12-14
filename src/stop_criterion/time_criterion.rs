@@ -1,6 +1,6 @@
 use std::time::{Duration, Instant};
 
-use crate::percentage::Percentage;
+use crate::components::Percentage;
 
 use super::StopCriterion;
 

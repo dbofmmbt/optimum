@@ -1,4 +1,4 @@
-use crate::percentage::Percentage;
+use crate::components::Percentage;
 
 use super::StopCriterion;
 
