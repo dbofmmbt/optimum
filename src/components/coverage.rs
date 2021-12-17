@@ -61,6 +61,11 @@ impl<T: Position> Coverage<T> {
             .enumerate()
             .for_each(|(position, cover)| *cover += other.state[position] as u8);
     }
+
+    /// Marks all elements as uncovered. Useful to allow reuse of the coverage.
+    pub fn reset(&mut self) {
+        self.state.fill(0);
+    }
 }
 
 pub trait Position {
