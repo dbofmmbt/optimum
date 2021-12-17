@@ -8,6 +8,8 @@ use std::{
 pub use member::{Key, Member};
 use rand::{prelude::SliceRandom, Rng};
 
+use crate::core::{Objective, Problem};
+
 use super::{Decoder, Params, Value};
 
 #[derive(Debug)]
@@ -27,7 +29,7 @@ impl<D: Decoder> Clone for Population<D> {
 
 impl<D: Decoder> Population<D> {
     pub fn new(params: Params, mut rng: impl Rng, decoder: &D) -> Self {
-        let mut members = (0..params.population_size.get())
+        let members = (0..params.population_size.get())
             .map(|_| {
                 let keys = {
                     let mut k = vec![0.0; params.members.get()].into_boxed_slice();
@@ -39,9 +41,18 @@ impl<D: Decoder> Population<D> {
             })
             .collect::<Vec<_>>();
 
-        members.sort();
+        let mut population = Self { members, params };
+        population.sort();
+        population
+    }
 
-        Self { members, params }
+    fn sort(&mut self) {
+        let objective = <D::P as Problem>::OBJECTIVE;
+
+        match objective {
+            Objective::Min => self.members.sort_unstable(),
+            Objective::Max => self.members.sort_unstable_by(|a, b| b.cmp(a)),
+        }
     }
 
     pub fn size(&self) -> usize {
@@ -113,7 +124,7 @@ impl<D: Decoder> Population<D> {
             member.value = decoder.decode(&member.keys);
         }
 
-        self.members.sort();
+        self.sort();
     }
 
     pub fn reset(&mut self, mut rng: impl Rng, decoder: &D) {

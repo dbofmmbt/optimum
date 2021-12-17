@@ -2,4 +2,4 @@
 
 mod brkga;
 
-pub use brkga::{Brkga, Params as BrkgaParams, Decoder, Key};
+pub use brkga::{Brkga, Decoder, Key, Params as BrkgaParams};
