@@ -23,6 +23,7 @@ pub struct Brkga<'a, D: Decoder, R: Rng> {
 
 impl<'a, R: Rng, D: Decoder> Brkga<'a, D, R> {
     pub fn new(decoder: &'a D, mut rng: R, params: Params) -> Self {
+        // TODO decouple initial population generation from the method itself to ease reuse
         let current = Population::new(params, &mut rng, decoder);
         let previous = current.clone();
 

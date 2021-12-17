@@ -9,6 +9,7 @@ pub trait Score {
     fn score(&self) -> Self::Value;
 }
 
+// TODO refactor elite set to use the Problem trait.
 #[derive(Debug)]
 pub struct EliteSet<T: Score> {
     elements: Vec<T>,

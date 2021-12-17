@@ -1,26 +1,15 @@
-use std::fmt::Debug;
+//! TODO document this module properly.
+//!
+//! Take a look at [Problem].
+//!
 
-use crate::stop_criterion::StopCriterion;
+mod problem;
+mod solver;
+pub mod stop_criterion;
 
-#[allow(dead_code)]
-pub enum Objective {
-    Min,
-    Max,
-}
+pub use problem::{Objective, Problem};
 
-pub trait Problem {
-    const OBJECTIVE: Objective;
-    type Solution;
-    type Value: Ord + Copy + Debug;
-
-    fn objective_function(&self, solution: &Self::Solution) -> Self::Value;
-}
-
-pub trait Constructor<SC: StopCriterion> {
-    type P: Problem;
-
-    fn build(&mut self, stop_criterion: &SC) -> <Self::P as Problem>::Solution;
-}
+pub use stop_criterion::StopCriterion;
 
 pub trait Move {
     type P: Problem;

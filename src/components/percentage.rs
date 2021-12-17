@@ -3,6 +3,7 @@ use std::{convert::TryFrom, num::ParseFloatError, str::FromStr};
 use ordered_float::NotNan;
 use thiserror::Error;
 
+// NOTE should this be renamed? It's just a real number (with imprecision). Float without weirdness...
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub struct Percentage(NotNan<f64>);
 

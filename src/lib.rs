@@ -1,4 +1,5 @@
+//! TODO document the module properly. Take a look at the modules to see what we have right now.  
+
 pub mod components;
-mod core;
-mod metaheuristics;
-pub mod stop_criterion;
+pub mod core;
+pub mod metaheuristics;
