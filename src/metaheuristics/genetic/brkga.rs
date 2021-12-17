@@ -68,9 +68,9 @@ impl<'a, R: Rng, D: Decoder> Brkga<'a, D, R> {
 
 #[derive(Debug, Clone, Copy)]
 pub struct Params {
-    population_size: NonZeroUsize,
-    members: NonZeroUsize,
-    elites: usize,
-    mutants: usize,
-    crossover_bias: f64,
+    pub population_size: NonZeroUsize,
+    pub members: NonZeroUsize,
+    pub elites: usize,
+    pub mutants: usize,
+    pub crossover_bias: f64,
 }
