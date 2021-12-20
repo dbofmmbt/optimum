@@ -1,10 +1,13 @@
 use std::ops::{Index, IndexMut};
 
-pub type Key = f64;
+use crate::metaheuristics::genetic::decoder::RandomKey;
 
+/// A slice of [RandomKey]s which represents solutions to a problem.
 #[derive(Debug, Clone)]
 pub struct Member<V> {
-    pub keys: Box<[Key]>,
+    /// The slice of [RandomKey]s
+    pub keys: Box<[RandomKey]>,
+    /// The value obtained by decoding the `keys`.
     pub value: V,
 }
 
@@ -29,7 +32,7 @@ impl<V: PartialEq> PartialEq for Member<V> {
 impl<V: Eq> Eq for Member<V> {}
 
 impl<V> Index<usize> for Member<V> {
-    type Output = Key;
+    type Output = RandomKey;
 
     fn index(&self, index: usize) -> &Self::Output {
         &self.keys[index]

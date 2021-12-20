@@ -1,5 +1,13 @@
-#![allow(dead_code)]
+#![warn(missing_docs)]
 
-mod brkga;
+//! # Genetic Algorithms
+//!
+//! This module contains genetic-based metaheuristics.
+//!
+//! Currently there's an implementation of [BRKGA][brkga], but more may be added in the future.
+//!
 
-pub use brkga::{Brkga, Decoder, Key, Params as BrkgaParams};
+pub mod brkga;
+
+mod decoder;
+pub use decoder::{Decoder, RandomKey};
