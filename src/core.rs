@@ -4,7 +4,7 @@
 //!
 
 mod problem;
-mod solver;
+pub mod solver;
 pub mod stop_criterion;
 
 pub use problem::{Objective, Problem};
