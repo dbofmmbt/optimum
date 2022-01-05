@@ -5,6 +5,8 @@ mod iter_criterion;
 mod quality_criterion;
 mod time_criterion;
 
+mod criterion_combiner;
+
 #[cfg(test)]
 pub(crate) mod test_helpers;
 
@@ -12,6 +14,8 @@ pub use improvement_criterion::ImprovementCriterion;
 pub use iter_criterion::IterCriterion;
 pub use quality_criterion::QualityCriterion;
 pub use time_criterion::TimeCriterion;
+
+pub use criterion_combiner::CriterionCombiner;
 
 use super::Problem;
 
