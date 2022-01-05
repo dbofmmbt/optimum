@@ -65,7 +65,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn improvement_criterion_works() {
+    fn it_works() {
         let max = 10;
         let mut criterion = ImprovementCriterion::<()>::new(0, max, Duration::from_secs(3600));
 
