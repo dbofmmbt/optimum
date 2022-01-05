@@ -10,6 +10,11 @@
 
 pub mod population;
 
+use crate::core::{
+    solver::{Iteration, Solver},
+    Problem, StopCriterion,
+};
+
 use super::{decoder::Value, Decoder};
 use population::{Member, Population};
 
@@ -97,6 +102,24 @@ impl<'a, R: Rng, D: Decoder> Brkga<'a, D, R> {
     /// Returns a reference for the best [Member] at this moment.
     pub fn best(&self) -> &Member<Value<D>> {
         &self.current[0]
+    }
+}
+
+impl<'a, D, R, SC> Solver<SC> for Brkga<'a, D, R>
+where
+    D: Decoder,
+    R: Rng,
+    SC: StopCriterion<D::P>,
+{
+    type P = D::P;
+
+    fn iterate(&mut self, _: &mut SC) -> Option<Iteration<Self::P>> {
+        self.evolve();
+
+        let solution = self.decoder.decode(&self.best().keys);
+        let value = self.decoder.problem().objective_function(&solution);
+
+        Some((solution, value))
     }
 }
 
