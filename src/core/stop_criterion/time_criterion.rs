@@ -1,17 +1,21 @@
-use std::time::{Duration, Instant};
+use std::{
+    marker::PhantomData,
+    time::{Duration, Instant},
+};
 
-use crate::components::Percentage;
+use crate::{components::Percentage, core::Problem};
 
 use super::StopCriterion;
 
-pub struct TimeCriterion {
+pub struct TimeCriterion<P> {
     current_iter: usize,
     start: Instant,
     elapsed: Duration,
     duration: Duration,
+    _p: PhantomData<P>,
 }
 
-impl TimeCriterion {
+impl<P> TimeCriterion<P> {
     #[allow(dead_code)]
     pub fn new(duration: Duration) -> Self {
         assert!(!duration.is_zero());
@@ -23,11 +27,12 @@ impl TimeCriterion {
             start,
             elapsed: start.elapsed(),
             duration,
+            _p: PhantomData,
         }
     }
 }
 
-impl StopCriterion for TimeCriterion {
+impl<P: Problem> StopCriterion<P> for TimeCriterion<P> {
     fn progress(&self) -> Percentage {
         let ratio = self.elapsed.as_secs_f64() / self.duration.as_secs_f64();
 
@@ -35,7 +40,7 @@ impl StopCriterion for TimeCriterion {
         unsafe { Percentage::new_unchecked(ratio) }
     }
 
-    fn update(&mut self) {
+    fn update(&mut self, _: <P as Problem>::Value) {
         self.elapsed = self.start.elapsed();
         self.current_iter += 1;
     }
@@ -51,13 +56,13 @@ mod tests {
 
     #[test]
     fn it_works() {
-        let mut stop = TimeCriterion::new(Duration::from_secs(10));
+        let mut stop = TimeCriterion::<()>::new(Duration::from_secs(10));
         assert_eq!(stop.current_iter(), 0);
         assert!((stop.progress().value() - Percentage::ZERO.value()).abs() <= 1e-6);
 
         assert!(!stop.should_stop());
 
-        stop.update();
+        stop.update(0);
 
         assert_eq!(stop.current_iter(), 1);
 
