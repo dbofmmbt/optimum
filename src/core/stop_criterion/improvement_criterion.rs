@@ -65,6 +65,8 @@ impl<P: Problem> StopCriterion<P> for ImprovementCriterion<P> {
 mod tests {
     use super::*;
 
+    // TODO add better test cases
+
     #[test]
     fn it_works() {
         let max = 10;
