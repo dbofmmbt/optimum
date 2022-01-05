@@ -43,7 +43,7 @@ impl<D: Decoder> Population<D> {
                     rng.fill(k.as_mut());
                     k
                 };
-                let value = decoder.decode(&keys);
+                let value = decoder.decode_value(&keys);
                 Member { keys, value }
             })
             .collect::<Vec<_>>();
@@ -140,7 +140,7 @@ impl<D: Decoder> Population<D> {
 
     pub(crate) fn compute_value(&mut self, decoder: &D) {
         for member in self.members.iter_mut() {
-            member.value = decoder.decode(&member.keys);
+            member.value = decoder.decode_value(&member.keys);
         }
 
         self.sort();

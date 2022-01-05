@@ -12,7 +12,19 @@ pub trait Decoder {
     ///
     /// You'll usually convert `member` into a solution for the problem and then
     /// apply the solution into the problem's objective function.
-    fn decode(&self, member: &[RandomKey]) -> <Self::P as Problem>::Value;
+    fn decode(&self, member: &[RandomKey]) -> <Self::P as Problem>::Solution;
+
+    /// A mapping between a slice of [RandomKey]s and a value for [Self::P].
+    ///
+    /// You'll usually convert `member` into a solution for the problem and then
+    /// apply the solution into the problem's objective function.
+    fn decode_value(&self, member: &[RandomKey]) -> <Self::P as Problem>::Value {
+        let solution = self.decode(member);
+        self.problem().objective_function(&solution)
+    }
+
+    /// The problem instance which may be decoded.
+    fn problem(&self) -> &Self::P;
 }
 
 // NOTE should this be another type?
