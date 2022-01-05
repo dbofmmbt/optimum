@@ -2,6 +2,7 @@ use crate::components::Percentage;
 
 mod improvement_criterion;
 mod iter_criterion;
+mod quality_criterion;
 mod time_criterion;
 
 #[cfg(test)]
@@ -9,6 +10,7 @@ pub(crate) mod test_helpers;
 
 pub use improvement_criterion::ImprovementCriterion;
 pub use iter_criterion::IterCriterion;
+pub use quality_criterion::QualityCriterion;
 pub use time_criterion::TimeCriterion;
 
 use super::Problem;
