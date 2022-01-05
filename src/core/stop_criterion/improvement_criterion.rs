@@ -51,6 +51,7 @@ impl<P: Problem> StopCriterion<P> for ImprovementCriterion<P> {
         self.time_criterion.update(new_value);
 
         if self.best_solution_improved(new_value) {
+            self.best = new_value;
             self.last_improvement = self.current_iter();
         }
     }
