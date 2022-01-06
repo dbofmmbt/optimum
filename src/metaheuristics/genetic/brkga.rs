@@ -151,20 +151,6 @@ impl<'a, R: Rng, D: Decoder> Brkga<'a, D, R> {
         self.current.sort();
     }
 
-    /// Substitute all members for mutants.
-    pub fn reset_population(&mut self) {
-        for member in self.current.members.iter_mut() {
-            self.rng.fill(member.keys.as_mut());
-        }
-        self.recompute_current();
-    }
-
-    /// Resets the algorithm.
-    pub fn reset(&mut self) {
-        // TODO confirm if this function matches the reset on brkgaAPI.
-        self.generations = 1;
-    }
-
     /// Returns the number of the current generation.
     pub fn current_generation(&self) -> usize {
         self.generations
@@ -222,6 +208,7 @@ where
     }
 }
 
+// TODO add constructor to validate the input
 /// The parameters needed to run the BRKGA algorithm
 #[derive(Debug, Clone, Copy)]
 pub struct Params {
