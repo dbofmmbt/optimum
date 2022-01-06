@@ -8,19 +8,19 @@
 //! The main items here are [Brkga] and its [Params].
 //!
 
-pub mod population;
-
 use crate::core::{
     solver::{Iteration, Solver},
     Problem, StopCriterion,
 };
 
-use super::{decoder::Value, Decoder};
-use population::{Member, Population};
+use super::{
+    population::{Member, Population},
+    Decoder, RandomKey,
+};
 
 use std::{num::NonZeroUsize, usize};
 
-use rand::Rng;
+use rand::{prelude::SliceRandom, Rng};
 
 /// The interface to execute the BRKGA algorithm.
 ///
@@ -43,24 +43,43 @@ use rand::Rng;
 pub struct Brkga<'a, D: Decoder, R: Rng> {
     decoder: &'a D,
     rng: R,
-    current: Population<D>,
-    previous: Population<D>,
+    current: BrkgaPopulation<D>,
+    next: BrkgaPopulation<D>,
     generations: usize,
+    params: Params,
 }
+
+/// The population type used by BRKGA
+pub type BrkgaPopulation<D> = Population<<D as Decoder>::P, RandomKey>;
+
+/// The member type used by BRKGA
+pub type BrkgaMember<D> = Member<RandomKey, <<D as Decoder>::P as Problem>::Value>;
 
 impl<'a, R: Rng, D: Decoder> Brkga<'a, D, R> {
     /// Creates a new BRKGA instance, which solves the [Problem][crate::core::Problem] defined by the [Decoder].
     pub fn new(decoder: &'a D, mut rng: R, params: Params) -> Self {
-        // TODO decouple initial population generation from the method itself to ease reuse
-        let current = Population::new(params, &mut rng, decoder);
-        let previous = current.clone();
+        // TODO allow caller to pass a custom_builder
+        let random_member_builder = |_| {
+            let keys = {
+                let mut k = vec![0.0; params.member_size.get()].into_boxed_slice();
+                rng.fill(k.as_mut());
+                k
+            };
+
+            let value = decoder.decode_value(&keys);
+            Member { keys, value }
+        };
+
+        let current = Population::new(params.population_size.get(), random_member_builder);
+        let next = current.clone();
 
         Self {
-            decoder,
-            rng,
             current,
-            previous,
+            decoder,
+            params,
+            next,
             generations: 0,
+            rng,
         }
     }
 
@@ -71,16 +90,73 @@ impl<'a, R: Rng, D: Decoder> Brkga<'a, D, R> {
     /// 3. The worse members are exchanged by mutants.
     ///
     pub fn evolve(&mut self) {
-        let next = &mut self.previous;
+        self.transfer_elites();
+        self.crossover();
+        std::mem::swap(&mut self.current, &mut self.next);
+        self.mutate_current();
+        self.recompute_current();
 
-        self.current.transfer_elites(next);
-        self.current.crossover(next, &mut self.rng);
-        next.mutate(&mut self.rng);
-
-        next.compute_value(self.decoder);
-
-        std::mem::swap(&mut self.current, next);
         self.generations += 1;
+    }
+
+    /// Copy the elites from `current` to `next`.
+    fn transfer_elites(&mut self) {
+        let elites = Self::elites(&self.current, &self.params);
+
+        for (elite, target) in elites.iter().zip(self.next.members.iter_mut()) {
+            target.keys.copy_from_slice(&elite.keys);
+            target.value = elite.value;
+        }
+    }
+
+    /// Performs the crossover operation to a new generation.
+    ///
+    /// Until all necessary chields are created,
+    /// it selects an elite parent and a non elite parent and generates a child
+    /// by randomly choosing which key comes from which parent
+    /// based on the crossover bias parameter.
+    fn crossover(&mut self) {
+        for member in Self::regulars(&mut self.next, &self.params) {
+            let elite_parent = Self::elites(&self.current, &self.params)
+                .choose(&mut self.rng)
+                .unwrap();
+            let non_elite_parent = Self::not_elites(&self.current, &self.params)
+                .choose(&mut self.rng)
+                .unwrap();
+
+            for gene in 0..self.params.member_size.get() {
+                let source_parent = if self.rng.gen::<f64>() < self.params.crossover_bias {
+                    elite_parent
+                } else {
+                    non_elite_parent
+                };
+
+                member[gene] = source_parent[gene];
+            }
+        }
+    }
+
+    /// Substitute the worse members for randomly generated mutants.
+    fn mutate_current(&mut self) {
+        for mutant in Self::mutants(&mut self.current, &self.params) {
+            self.rng.fill(mutant.keys.as_mut());
+        }
+    }
+
+    fn recompute_current(&mut self) {
+        for member in self.current.members.iter_mut() {
+            member.value = self.decoder.decode_value(&member.keys);
+        }
+
+        self.current.sort();
+    }
+
+    /// Substitute all members for mutants.
+    pub fn reset_population(&mut self) {
+        for member in self.current.members.iter_mut() {
+            self.rng.fill(member.keys.as_mut());
+        }
+        self.recompute_current();
     }
 
     /// Resets the algorithm.
@@ -95,13 +171,36 @@ impl<'a, R: Rng, D: Decoder> Brkga<'a, D, R> {
     }
 
     /// Returns the current [Population] held by the algorithm.
-    pub fn current_population(&self) -> &Population<D> {
+    pub fn current_population(&self) -> &BrkgaPopulation<D> {
         &self.current
     }
 
     /// Returns a reference for the best [Member] at this moment.
-    pub fn best(&self) -> &Member<Value<D>> {
+    pub fn best(&self) -> &BrkgaMember<D> {
         &self.current[0]
+    }
+
+    fn regulars<'b>(
+        population: &'b mut BrkgaPopulation<D>,
+        p: &Params,
+    ) -> &'b mut [BrkgaMember<D>] {
+        let regulars = { p.elites..(p.population_size.get() - p.mutants) };
+        &mut population[regulars]
+    }
+
+    fn mutants<'b>(population: &'b mut BrkgaPopulation<D>, p: &Params) -> &'b mut [BrkgaMember<D>] {
+        let mutants = (p.population_size.get() - p.mutants)..p.population_size.get();
+        &mut population[mutants]
+    }
+
+    /// A slice with the best [Member]s.
+    fn elites<'b>(population: &'b BrkgaPopulation<D>, p: &Params) -> &'b [BrkgaMember<D>] {
+        &population[..p.elites]
+    }
+
+    /// A slice with the [Member]s which aren't elites.
+    fn not_elites<'b>(population: &'b BrkgaPopulation<D>, p: &Params) -> &'b [BrkgaMember<D>] {
+        &population[p.elites..]
     }
 }
 

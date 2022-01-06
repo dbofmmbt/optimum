@@ -9,5 +9,7 @@
 
 pub mod brkga;
 
+pub mod population;
+
 mod decoder;
 pub use decoder::{Decoder, RandomKey};
