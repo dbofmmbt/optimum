@@ -4,6 +4,7 @@ use crate::{components::Percentage, core::Problem};
 
 use super::StopCriterion;
 
+/// The execution stops after N iterations.
 pub struct IterCriterion<P> {
     current_iter: usize,
     max_iter: usize,
@@ -11,7 +12,9 @@ pub struct IterCriterion<P> {
 }
 
 impl<P: Problem> IterCriterion<P> {
-    #[allow(dead_code)]
+    /// Creates a new iteration criterion.
+    ///
+    /// Stops as soon as `max_iter` iterations are performed.
     pub fn new(max_iter: usize) -> Self {
         Self {
             max_iter,

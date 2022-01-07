@@ -9,8 +9,7 @@
 //!
 
 use crate::core::{
-    solver::{Iteration, Solver},
-    Problem, StopCriterion,
+    Problem, StopCriterion, {Iteration, Solver},
 };
 
 use super::{

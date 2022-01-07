@@ -1,5 +1,3 @@
-#![warn(missing_docs)]
-
 //! # Genetic Algorithms
 //!
 //! This module contains genetic-based metaheuristics.

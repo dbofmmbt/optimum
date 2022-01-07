@@ -2,7 +2,9 @@ use std::fmt::Debug;
 
 /// Determines if you want to minimize or maximize the [objective_function][Problem::objective_function]
 pub enum Objective {
+    /// Minimization
     Min,
+    /// Maximization
     Max,
 }
 

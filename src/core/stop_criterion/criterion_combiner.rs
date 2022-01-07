@@ -5,6 +5,9 @@ use crate::core::Problem;
 
 use std::marker::PhantomData;
 
+/// Takes two criterions and combines them, finishing as soon as either of them finishes.
+///
+/// The [progress][StopCriterion::progress] is the highest of the two.
 pub struct CriterionCombiner<P, A, B> {
     a: A,
     b: B,
@@ -17,6 +20,7 @@ where
     B: StopCriterion<P>,
     P: Problem,
 {
+    /// Creates a new criterion combiner based on `a` and `b`.
     pub fn new(a: A, b: B) -> Self {
         Self {
             a,

@@ -1,22 +1,14 @@
-//! TODO document this module properly.
+#![warn(missing_docs)]
 //!
-//! Take a look at [Problem].
+//! The basic building blocks for optimization problems.
 //!
-
+//! [Problem] and [Solver] are the core traits.
+//!
 mod problem;
-pub mod solver;
+mod solver;
 pub mod stop_criterion;
 
 pub use problem::{Objective, Problem};
 
+pub use solver::{Iteration, Solver};
 pub use stop_criterion::StopCriterion;
-
-pub trait Move {
-    type P: Problem;
-
-    fn apply(&mut self, s: <Self::P as Problem>::Solution) -> <Self::P as Problem>::Solution;
-}
-
-pub trait ReversibleMove: Move {
-    fn reversal(&self) -> Self;
-}

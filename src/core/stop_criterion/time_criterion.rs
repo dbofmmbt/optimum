@@ -7,6 +7,10 @@ use crate::{components::Percentage, core::Problem};
 
 use super::StopCriterion;
 
+/// This criterion is based on a maximum duration.
+///
+/// The timer starts as soon as the criterion is created (i.e. through [new][TimeCriterion::new])
+/// and stops when it exceeds the duration given.
 pub struct TimeCriterion<P> {
     current_iter: usize,
     start: Instant,
@@ -17,6 +21,7 @@ pub struct TimeCriterion<P> {
 
 impl<P> TimeCriterion<P> {
     #[allow(dead_code)]
+    /// Creates a new time criterion.
     pub fn new(duration: Duration) -> Self {
         assert!(!duration.is_zero());
 
