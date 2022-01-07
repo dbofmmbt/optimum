@@ -91,7 +91,7 @@ mod tests {
         let stop_criterion = setup::<()>(usize::MAX, Duration::from_nanos(1));
 
         // Ensure that the required time will pass.
-        sleep(Duration::from_millis(1));
+        sleep(Duration::from_millis(10));
 
         assert!(stop_criterion.should_stop());
     }
