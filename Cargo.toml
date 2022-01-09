@@ -12,7 +12,9 @@ categories = ["algorithms", "science"]
 
 [dependencies]
 derive_more = "0.99.17"
-itertools = "0.10.3"
-ordered-float = "2.8.0"
+num-traits = "0.2.14"
 rand = "0.8.4"
 thiserror = "1.0.30"
+
+[dev-dependencies]
+ordered-float = "2.8.0"

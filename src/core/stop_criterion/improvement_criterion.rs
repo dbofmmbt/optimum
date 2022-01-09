@@ -1,7 +1,6 @@
-use crate::{
-    components::Percentage,
-    core::{Objective, Problem},
-};
+use num_traits::{One, Zero};
+
+use crate::core::{Objective, Problem};
 
 use super::StopCriterion;
 
@@ -42,11 +41,11 @@ impl<P: Problem> ImprovementCriterion<P> {
 }
 
 impl<P: Problem> StopCriterion<P> for ImprovementCriterion<P> {
-    fn progress(&self) -> crate::components::Percentage {
+    fn progress(&self) -> f64 {
         if self.improvement_took_too_long() {
-            Percentage::ONE
+            f64::one()
         } else {
-            Percentage::ZERO
+            f64::zero()
         }
     }
 
@@ -77,10 +76,10 @@ mod tests {
 
         (0..max).for_each(|_| criterion.update(0));
 
-        assert_ne!(criterion.progress(), Percentage::ONE);
+        assert_ne!(criterion.progress(), f64::one());
 
         criterion.update(0);
 
-        assert_eq!(criterion.progress(), Percentage::ONE);
+        assert_eq!(criterion.progress(), f64::one());
     }
 }

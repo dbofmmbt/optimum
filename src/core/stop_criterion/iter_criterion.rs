@@ -1,6 +1,6 @@
 use std::marker::PhantomData;
 
-use crate::{components::Percentage, core::Problem};
+use crate::core::Problem;
 
 use super::StopCriterion;
 
@@ -25,9 +25,8 @@ impl<P: Problem> IterCriterion<P> {
 }
 
 impl<P: Problem> StopCriterion<P> for IterCriterion<P> {
-    fn progress(&self) -> Percentage {
-        let ratio = self.current_iter as f64 / self.max_iter as f64;
-        unsafe { Percentage::new_unchecked(ratio) }
+    fn progress(&self) -> f64 {
+        self.current_iter as f64 / self.max_iter as f64
     }
 
     fn update(&mut self, _: P::Value) {

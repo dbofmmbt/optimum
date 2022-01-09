@@ -1,5 +1,3 @@
-use crate::components::Percentage;
-
 use super::StopCriterion;
 use crate::core::Problem;
 
@@ -36,7 +34,7 @@ where
     B: StopCriterion<P>,
     P: Problem,
 {
-    fn progress(&self) -> Percentage {
+    fn progress(&self) -> f64 {
         let a = self.a.progress();
         let b = self.b.progress();
 
