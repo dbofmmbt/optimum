@@ -1,5 +1,9 @@
 # Optimum: a Rust-based Optimization Framework
 
+[![crate](https://img.shields.io/crates/v/optimum.svg)](https://crates.io/crates/optimum)
+[![documentation](https://docs.rs/optimum/badge.svg)](https://docs.rs/optimum)
+[![build status](https://github.com/dbofmmbt/optimum/workflows/main/badge.svg)](https://github.com/dbofmmbt/optimum/actions)
+
 **Current state:** Design, Research and Experimentation. Be aware that I **will** change a lot of things until the project reaches an initial version.
 
 Based on my experience working with Metaheuristics, I plan to build a framework capable of accelerating the development of solutions efficiently by leveraging Rust features that ease the creation of reliable and efficient software.
