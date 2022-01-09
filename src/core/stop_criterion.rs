@@ -8,7 +8,7 @@
 //! Additionally, there's the [CriterionCombiner], which allows to combine two [StopCriterion]s
 //! into one and stops as soon as either of them stops.
 
-use num_traits::real::Real;
+use crate::components::Percentage;
 
 mod improvement_criterion;
 mod iter_criterion;
@@ -29,16 +29,16 @@ pub use criterion_combiner::CriterionCombiner;
 
 use super::Problem;
 
-/// A stop criterion determines when the [Solver][crate::Solver] should stop seeking better solutions
-/// and just yield the results. The implementations provided in [core::stop_criterion][crate::stop_criterion] should cover
+/// A stop criterion determines when the [Solver][crate::core::Solver] should stop seeking better solutions
+/// and just yield the results. The implementations provided in [core::stop_criterion][crate::core::stop_criterion] should cover
 /// most cases of stop criterions, such as [IterCriterion] and [TimeCriterion].
-pub trait StopCriterion<P: Problem, R: Real = f64> {
+pub trait StopCriterion<P: Problem> {
     /// The progress starts at zero and increases during execution.
-    fn progress(&self) -> R;
+    fn progress(&self) -> Percentage;
 
     /// True when [progress][Self::progress] achieves 100%.
     fn should_stop(&self) -> bool {
-        self.progress() >= R::one()
+        self.progress() >= Percentage::ONE
     }
 
     /// Updates the internal state. `new_value` is the value's newly generated solution.

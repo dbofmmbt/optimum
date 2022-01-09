@@ -1,21 +1,19 @@
-use std::marker::PhantomData;
-
-use num_traits::real::Real;
-
-use crate::{Objective, Problem};
+use crate::{
+    components::Percentage,
+    core::{Objective, Problem},
+};
 
 use super::StopCriterion;
 
 /// The stop criterion is met when the solver executes N iterations in sequence without improving the best solution.
-pub struct ImprovementCriterion<P: Problem, R = f64> {
+pub struct ImprovementCriterion<P: Problem> {
     last_improvement: usize,
     best: P::Value,
     max_without_improvement: usize,
     current_iter: usize,
-    p: PhantomData<R>,
 }
 
-impl<P: Problem, R> ImprovementCriterion<P, R> {
+impl<P: Problem> ImprovementCriterion<P> {
     /// Creates a new improvement criterion.
     ///
     /// - `initial` is the initial best value (a very high value for minimization or very low value for maximization).
@@ -26,12 +24,11 @@ impl<P: Problem, R> ImprovementCriterion<P, R> {
             last_improvement: 0,
             current_iter: 0,
             max_without_improvement: max_iters,
-            p: PhantomData,
         }
     }
 
     fn improvement_took_too_long(&self) -> bool {
-        let iterations_without_improvement = self.current_iter - self.last_improvement;
+        let iterations_without_improvement = self.current_iter() - self.last_improvement;
 
         iterations_without_improvement > self.max_without_improvement
     }
@@ -44,12 +41,12 @@ impl<P: Problem, R> ImprovementCriterion<P, R> {
     }
 }
 
-impl<P: Problem, R: Real> StopCriterion<P, R> for ImprovementCriterion<P, R> {
-    fn progress(&self) -> R {
+impl<P: Problem> StopCriterion<P> for ImprovementCriterion<P> {
+    fn progress(&self) -> crate::components::Percentage {
         if self.improvement_took_too_long() {
-            R::one()
+            Percentage::ONE
         } else {
-            R::zero()
+            Percentage::ZERO
         }
     }
 
@@ -58,7 +55,7 @@ impl<P: Problem, R: Real> StopCriterion<P, R> for ImprovementCriterion<P, R> {
 
         if self.best_solution_improved(new_value) {
             self.best = new_value;
-            self.last_improvement = self.current_iter;
+            self.last_improvement = self.current_iter();
         }
     }
 
@@ -69,8 +66,6 @@ impl<P: Problem, R: Real> StopCriterion<P, R> for ImprovementCriterion<P, R> {
 
 #[cfg(test)]
 mod tests {
-    use num_traits::One;
-
     use super::*;
 
     // TODO add better test cases
@@ -82,10 +77,10 @@ mod tests {
 
         (0..max).for_each(|_| criterion.update(0));
 
-        assert_ne!(criterion.progress(), f64::one());
+        assert_ne!(criterion.progress(), Percentage::ONE);
 
         criterion.update(0);
 
-        assert_eq!(criterion.progress(), f64::one());
+        assert_eq!(criterion.progress(), Percentage::ONE);
     }
 }

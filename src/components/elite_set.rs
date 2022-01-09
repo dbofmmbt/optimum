@@ -1,7 +1,7 @@
 use core::fmt::Debug;
 use std::{slice, vec};
 
-use optimum_core::{Comparison, Evaluation, Problem};
+use crate::core::{Comparison, Evaluation, Problem};
 
 pub struct EliteSet<P: Problem> {
     elements: Vec<Evaluation<P>>,
@@ -137,7 +137,7 @@ impl<'a, P: Problem> IntoIterator for EliteSet<P> {
 
 #[cfg(test)]
 mod tests {
-    use optimum_core::Objective;
+    use crate::core::Objective;
 
     use super::*;
 

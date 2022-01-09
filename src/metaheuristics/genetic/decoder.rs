@@ -1,4 +1,4 @@
-use optimum_core::Problem;
+use crate::core::Problem;
 
 /// [Decoder] defines the behavior needed for Random-Key based algorithms to [decode][Decoder::decode] the member
 /// of the population the discover its [Value][Problem::Value] for the target [Problem].

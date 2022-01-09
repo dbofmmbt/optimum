@@ -1,6 +1,6 @@
 //! See [Solver].
 
-use crate::stop_criterion::StopCriterion;
+use crate::core::stop_criterion::StopCriterion;
 
 use super::{Comparison, Evaluation, Problem};
 

@@ -1,24 +1,24 @@
-use num_traits::real::Real;
+use crate::components::Percentage;
 
 use super::StopCriterion;
-use crate::Problem;
+use crate::core::Problem;
 
 use std::marker::PhantomData;
 
 /// Takes two criterions and combines them, finishing as soon as either of them finishes.
 ///
 /// The [progress][StopCriterion::progress] is the highest of the two.
-pub struct CriterionCombiner<P, A, B, R = f64> {
+pub struct CriterionCombiner<P, A, B> {
     a: A,
     b: B,
     _p: PhantomData<P>,
-    _r: PhantomData<R>,
 }
 
-impl<A, B, P: Problem, R: Real> CriterionCombiner<P, A, B, R>
+impl<A, B, P> CriterionCombiner<P, A, B>
 where
-    A: StopCriterion<P, R>,
-    B: StopCriterion<P, R>,
+    A: StopCriterion<P>,
+    B: StopCriterion<P>,
+    P: Problem,
 {
     /// Creates a new criterion combiner based on `a` and `b`.
     pub fn new(a: A, b: B) -> Self {
@@ -26,19 +26,17 @@ where
             a,
             b,
             _p: PhantomData,
-            _r: PhantomData,
         }
     }
 }
 
-impl<A, B, P, R> StopCriterion<P, R> for CriterionCombiner<P, A, B, R>
+impl<A, B, P> StopCriterion<P> for CriterionCombiner<P, A, B>
 where
-    A: StopCriterion<P, R>,
-    B: StopCriterion<P, R>,
+    A: StopCriterion<P>,
+    B: StopCriterion<P>,
     P: Problem,
-    R: Real,
 {
-    fn progress(&self) -> R {
+    fn progress(&self) -> Percentage {
         let a = self.a.progress();
         let b = self.b.progress();
 
@@ -64,7 +62,7 @@ where
 mod tests {
     use std::{thread::sleep, time::Duration};
 
-    use crate::stop_criterion::*;
+    use crate::core::stop_criterion::*;
 
     use super::*;
 

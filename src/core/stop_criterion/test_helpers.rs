@@ -1,4 +1,4 @@
-use crate::{Evaluation, Objective, Problem};
+use crate::core::{Evaluation, Objective, Problem};
 
 impl Problem for () {
     const OBJECTIVE: Objective = Objective::Min;

@@ -3,7 +3,7 @@ use std::{
     time::{Duration, Instant},
 };
 
-use crate::Problem;
+use crate::{components::Percentage, core::Problem};
 
 use super::StopCriterion;
 
@@ -38,8 +38,11 @@ impl<P> TimeCriterion<P> {
 }
 
 impl<P: Problem> StopCriterion<P> for TimeCriterion<P> {
-    fn progress(&self) -> f64 {
-        self.elapsed.as_secs_f64() / self.duration.as_secs_f64()
+    fn progress(&self) -> Percentage {
+        let ratio = self.elapsed.as_secs_f64() / self.duration.as_secs_f64();
+
+        // SAFETY: `duration` is always different from zero, so `ratio` is a finite value.
+        unsafe { Percentage::new_unchecked(ratio) }
     }
 
     fn update(&mut self, _: <P as Problem>::Value) {
@@ -55,13 +58,12 @@ impl<P: Problem> StopCriterion<P> for TimeCriterion<P> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use num_traits::Zero;
 
     #[test]
     fn it_works() {
         let mut stop = TimeCriterion::<()>::new(Duration::from_secs(10));
         assert_eq!(stop.current_iter(), 0);
-        assert!((stop.progress() - f64::zero()).abs() <= 1e-6);
+        assert!((stop.progress().value() - Percentage::ZERO.value()).abs() <= 1e-6);
 
         assert!(!stop.should_stop());
 

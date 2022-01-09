@@ -1,5 +1,3 @@
-#![warn(missing_docs)]
-
 //! # Optimization Framework
 //!
 //!
@@ -8,8 +6,6 @@
 //! - [components]: Common building blocks to implement the problem-dependent code. Stuff here is very unstable right now.
 //!
 
-pub use optimum_core as core;
-
-pub use optimum_components as components;
-
-pub use optimum_metaheuristics as metaheuristics;
+pub mod components;
+pub mod core;
+pub mod metaheuristics;
