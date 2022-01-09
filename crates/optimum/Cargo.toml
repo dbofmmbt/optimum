@@ -11,6 +11,6 @@ categories = ["algorithms", "science"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-optimum_core = { path = "../optimum_core" }
-optimum_components = { path = "../optimum_components" }
-optimum_metaheuristics = { path = "../optimum_metaheuristics" }
+optimum_core = { path = "../optimum_core", version = "0.0.0" }
+optimum_components = { path = "../optimum_components", version = "0.0.0" }
+optimum_metaheuristics = { path = "../optimum_metaheuristics", version = "0.0.0" }
