@@ -8,7 +8,7 @@
 //! The main items here are [Brkga] and its [Params].
 //!
 
-use crate::core::{
+use optimum_core::{
     Problem, StopCriterion, {Evaluation, Solver},
 };
 
@@ -55,7 +55,7 @@ pub type BrkgaPopulation<D> = Population<<D as Decoder>::P, RandomKey>;
 pub type BrkgaMember<D> = Member<RandomKey, <<D as Decoder>::P as Problem>::Value>;
 
 impl<'a, R: Rng, D: Decoder> Brkga<'a, D, R> {
-    /// Creates a new BRKGA instance, which solves the [Problem][crate::core::Problem] defined by the [Decoder].
+    /// Creates a new BRKGA instance, which solves the [Problem][optimum_core::Problem] defined by the [Decoder].
     pub fn new(decoder: &'a D, mut rng: R, params: Params) -> Self {
         // TODO allow caller to pass a custom_builder
         let random_member_builder = |_| {

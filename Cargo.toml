@@ -1,18 +1,3 @@
-[package]
-name = "optimum"
-version = "0.0.2"
-edition = "2021"
-description = "Future Framework to solve optimization problems"
-license = "MIT"
-repository = "https://github.com/dbofmmbt/optimum"
-keywords = ["metaheuristics", "optimization"]
-categories = ["algorithms", "science"]
+[workspace]
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[dependencies]
-derive_more = "0.99.17"
-itertools = "0.10.3"
-ordered-float = "2.8.0"
-rand = "0.8.4"
-thiserror = "1.0.30"
+members = ["./crates/*"]

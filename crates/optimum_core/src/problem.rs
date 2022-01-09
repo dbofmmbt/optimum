@@ -14,7 +14,7 @@ pub enum Objective {
 ///
 /// ```
 /// # use ordered_float::NotNan;
-/// # use optimum::core::{Objective, Problem, Evaluation};
+/// # use optimum_core::{Objective, Problem, Evaluation};
 ///
 /// struct Knapsack {
 ///     max_weight: f64,

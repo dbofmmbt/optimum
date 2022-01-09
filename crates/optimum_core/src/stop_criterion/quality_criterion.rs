@@ -1,7 +1,6 @@
-use crate::{
-    components::Percentage,
-    core::{Objective, Problem},
-};
+use crate::{Objective, Problem};
+
+use num_traits::{One, Zero};
 
 use super::StopCriterion;
 
@@ -24,11 +23,11 @@ impl<P: Problem> QualityCriterion<P> {
 }
 
 impl<P: Problem> StopCriterion<P> for QualityCriterion<P> {
-    fn progress(&self) -> crate::components::Percentage {
+    fn progress(&self) -> f64 {
         if self.done {
-            Percentage::ONE
+            f64::one()
         } else {
-            Percentage::ZERO
+            f64::zero()
         }
     }
 
@@ -53,10 +52,10 @@ mod tests {
     fn it_works() {
         let mut criterion = QualityCriterion::<()>::new(0);
 
-        assert_ne!(criterion.progress(), Percentage::ONE);
+        assert_ne!(criterion.progress(), f64::one());
 
         criterion.update(0);
 
-        assert_eq!(criterion.progress(), Percentage::ONE);
+        assert_eq!(criterion.progress(), f64::one());
     }
 }

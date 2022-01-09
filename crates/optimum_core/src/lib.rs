@@ -4,6 +4,7 @@
 //!
 //! [Problem] and [Solver] are the core traits.
 //!
+
 mod problem;
 mod solver;
 pub mod stop_criterion;

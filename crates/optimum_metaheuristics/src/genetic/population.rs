@@ -6,8 +6,8 @@ use std::marker::PhantomData;
 
 use derive_more::{Index, IndexMut};
 
-use crate::core::{Objective, Problem};
 pub use member::Member;
+use optimum_core::{Objective, Problem};
 
 /// A list of members ranked by their value.
 #[derive(Debug, Index, IndexMut)]

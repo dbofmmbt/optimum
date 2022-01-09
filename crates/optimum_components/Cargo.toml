@@ -1,0 +1,12 @@
+[package]
+name = "optimum_components"
+version = "0.0.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+optimum_core = { path = '../optimum_core' }
+ordered-float = "2.10.0"
+rand = "0.8.4"
+thiserror = "1.0.30"
