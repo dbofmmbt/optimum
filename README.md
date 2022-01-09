@@ -2,7 +2,7 @@
 
 [![crate](https://img.shields.io/crates/v/optimum.svg)](https://crates.io/crates/optimum)
 [![documentation](https://docs.rs/optimum/badge.svg)](https://docs.rs/optimum)
-[![build status](https://github.com/dbofmmbt/optimum/workflows/main/badge.svg)](https://github.com/dbofmmbt/optimum/actions)
+[![build status](https://github.com/dbofmmbt/optimum/workflows/rust/badge.svg)](https://github.com/dbofmmbt/optimum/actions)
 
 **Current state:** Design, Research and Experimentation. Be aware that I **will** change a lot of things until the project reaches an initial version.
 
