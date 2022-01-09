@@ -1,4 +1,6 @@
-use std::fmt::Debug;
+mod evaluation;
+
+pub use evaluation::{Comparison, Evaluation};
 
 /// Determines if you want to minimize or maximize the [objective_function][Problem::objective_function]
 pub enum Objective {
@@ -12,7 +14,7 @@ pub enum Objective {
 ///
 /// ```
 /// # use ordered_float::NotNan;
-/// # use optimum::core::{Objective, Problem};
+/// # use optimum::core::{Objective, Problem, Evaluation};
 ///
 /// struct Knapsack {
 ///     max_weight: f64,
@@ -34,14 +36,16 @@ pub enum Objective {
 ///     type Value = NotNan<f64>;
 ///     
 ///     
-///     fn objective_function(&self, solution: &Self::Solution) -> Self::Value {
+///     fn objective_function(&self, solution: Self::Solution) -> Evaluation<Self> {
 ///         let score = self.available_items
 ///                         .iter()
 ///                         .enumerate()
 ///                         .filter(|&(i, _)| solution[i])
 ///                         .map(|(_, item)| item.value)
 ///                         .sum();
-///         NotNan::new(score).unwrap()
+///         let value = NotNan::new(score).unwrap();
+///
+///         Evaluation::new(solution, value)
 ///     }
 /// }
 ///
@@ -53,8 +57,8 @@ pub trait Problem {
     /// Determines the structure of the solution to the [Problem].
     type Solution;
     /// This is how you score the [Solution][Self::Solution]. Usually an integer or real number.
-    type Value: Ord + Copy + Debug;
+    type Value: Ord + Copy;
 
-    /// Associates a [Value][Self::Value] to each [Solution][Self::Solution] to the [Problem].
-    fn objective_function(&self, solution: &Self::Solution) -> Self::Value;
+    /// Associates a [Value][Self::Value] to each [Solution][Self::Solution] to the [Problem] through an [Evaluation].
+    fn objective_function(&self, solution: Self::Solution) -> Evaluation<Self>;
 }

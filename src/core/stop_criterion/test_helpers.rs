@@ -1,4 +1,4 @@
-use crate::core::{Objective, Problem};
+use crate::core::{Evaluation, Objective, Problem};
 
 impl Problem for () {
     const OBJECTIVE: Objective = Objective::Min;
@@ -7,7 +7,7 @@ impl Problem for () {
 
     type Value = usize;
 
-    fn objective_function(&self, _: &Self::Solution) -> Self::Value {
-        0
+    fn objective_function(&self, _: Self::Solution) -> Evaluation<Self> {
+        Evaluation::new((), 0)
     }
 }

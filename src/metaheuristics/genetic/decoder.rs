@@ -18,7 +18,7 @@ pub trait Decoder {
     /// apply the solution into the problem's objective function.
     fn decode_value(&self, member: &[RandomKey]) -> <Self::P as Problem>::Value {
         let solution = self.decode(member);
-        self.problem().objective_function(&solution)
+        self.problem().objective_function(solution).value()
     }
 
     /// The problem instance which may be decoded.

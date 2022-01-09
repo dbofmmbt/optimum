@@ -8,7 +8,8 @@ mod problem;
 mod solver;
 pub mod stop_criterion;
 
-pub use problem::{Objective, Problem};
+#[doc(inline)]
+pub use problem::{Comparison, Evaluation, Objective, Problem};
 
-pub use solver::{Iteration, Solver};
+pub use solver::Solver;
 pub use stop_criterion::StopCriterion;

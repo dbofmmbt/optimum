@@ -9,7 +9,7 @@
 //!
 
 use crate::core::{
-    Problem, StopCriterion, {Iteration, Solver},
+    Problem, StopCriterion, {Evaluation, Solver},
 };
 
 use super::{
@@ -197,13 +197,13 @@ where
 {
     type P = D::P;
 
-    fn iterate(&mut self, _: &mut SC) -> Option<Iteration<Self::P>> {
+    fn iterate(&mut self, _: &mut SC) -> Option<Evaluation<Self::P>> {
         self.evolve();
 
         let solution = self.decoder.decode(&self.best().keys);
-        let value = self.decoder.problem().objective_function(&solution);
+        let evaluation = self.decoder.problem().objective_function(solution);
 
-        Some((solution, value))
+        Some(evaluation)
     }
 }
 
