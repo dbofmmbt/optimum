@@ -1,4 +1,3 @@
-#![warn(missing_docs)]
 //!
 //! The basic building blocks for optimization problems.
 //!
