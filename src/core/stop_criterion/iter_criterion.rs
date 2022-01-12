@@ -5,6 +5,7 @@ use crate::core::Problem;
 use super::StopCriterion;
 
 /// The execution stops after N iterations.
+#[derive(Debug, Clone)]
 pub struct IterCriterion<P> {
     current_iter: usize,
     max_iter: usize,

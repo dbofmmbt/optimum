@@ -5,6 +5,7 @@ use crate::core::{Objective, Problem};
 use super::StopCriterion;
 
 /// The stop criterion is met when the solver executes N iterations in sequence without improving the best solution.
+#[derive(Debug, Clone)]
 pub struct ImprovementCriterion<P: Problem> {
     last_improvement: usize,
     best: P::Value,

@@ -3,6 +3,7 @@ use crate::core::{Objective, Problem, StopCriterion};
 use num_traits::{One, Zero};
 
 /// Stops as soon as a target value is reached.
+#[derive(Debug, Clone)]
 pub struct QualityCriterion<P: Problem> {
     target: P::Value,
     done: bool,

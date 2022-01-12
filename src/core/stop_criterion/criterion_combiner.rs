@@ -6,6 +6,7 @@ use std::marker::PhantomData;
 /// Takes two criterions and combines them, finishing as soon as either of them finishes.
 ///
 /// The [progress][StopCriterion::progress] is the highest of the two.
+#[derive(Debug, Clone)]
 pub struct CriterionCombiner<P, A, B> {
     a: A,
     b: B,

@@ -9,6 +9,7 @@ use crate::core::{Problem, StopCriterion};
 ///
 /// The timer starts as soon as the criterion is created (i.e. through [new][TimeCriterion::new])
 /// and stops when it exceeds the duration given.
+#[derive(Debug, Clone)]
 pub struct TimeCriterion<P> {
     current_iter: usize,
     start: Instant,
