@@ -3,7 +3,7 @@ use std::{
     time::Duration,
 };
 
-use crate::core::{Evaluation, Problem};
+use crate::core::{Evaluation, Objective, Problem};
 
 use super::Battery;
 
@@ -46,11 +46,13 @@ where
 
     /// Get a reference to the run's best.
     pub fn best(&self) -> &(usize, Evaluation<P>, Duration) {
-        self.battery
-            .evaluations()
-            .iter()
-            .max_by_key(|(_, e, _)| e.value())
-            .expect("A Battery should always have at least one execution")
+        let iter = self.battery.evaluations().iter();
+
+        match P::OBJECTIVE {
+            Objective::Min => iter.min_by_key(|(_, e, _)| e.value()),
+            Objective::Max => iter.max_by_key(|(_, e, _)| e.value()),
+        }
+        .expect("A Battery should always have at least one execution")
     }
 }
 
