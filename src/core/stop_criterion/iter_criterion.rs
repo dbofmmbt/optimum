@@ -5,21 +5,11 @@ use crate::core::Problem;
 use super::StopCriterion;
 
 /// The execution stops after N iterations.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct IterCriterion<P> {
     current_iter: usize,
     max_iter: usize,
     _p: PhantomData<P>,
-}
-
-impl<P> Clone for IterCriterion<P> {
-    fn clone(&self) -> Self {
-        Self {
-            current_iter: self.current_iter,
-            max_iter: self.max_iter,
-            _p: self._p,
-        }
-    }
 }
 
 impl<P: Problem> IterCriterion<P> {
