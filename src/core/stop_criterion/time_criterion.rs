@@ -9,13 +9,30 @@ use crate::core::{Problem, StopCriterion};
 ///
 /// The timer starts as soon as the criterion is created (i.e. through [new][TimeCriterion::new])
 /// and stops when it exceeds the duration given.
-#[derive(Debug, Clone)]
 pub struct TimeCriterion<P> {
     current_iter: usize,
     start: Instant,
     elapsed: Duration,
     duration: Duration,
     _p: PhantomData<P>,
+}
+
+impl<P> std::fmt::Debug for TimeCriterion<P> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("TimeCriterion")
+            .field("current_iter", &self.current_iter)
+            .field("start", &self.start)
+            .field("elapsed", &self.elapsed)
+            .field("duration", &self.duration)
+            .field("_p", &self._p)
+            .finish()
+    }
+}
+
+impl<P> Clone for TimeCriterion<P> {
+    fn clone(&self) -> Self {
+        Self::new(self.duration)
+    }
 }
 
 impl<P> TimeCriterion<P> {
@@ -75,4 +92,6 @@ mod tests {
 
         assert!(stop.should_stop());
     }
+
+    // TODO add tests for Clone because the semantic is customized
 }
