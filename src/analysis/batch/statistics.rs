@@ -39,6 +39,21 @@ where
         self.value_sum / self.batch.executions as f64
     }
 
+    /// Returns the value's variance of all executions
+    pub fn value_variance(&self) -> f64 {
+        self.batch
+            .evaluations
+            .iter()
+            .map(|(_, evaluation, _)| evaluation.value())
+            .map(|value| {
+                let diff = self.average_value() - value.into();
+
+                diff * diff
+            })
+            .sum::<f64>()
+            / self.batch.evaluations.len() as f64
+    }
+
     /// The average time expended on all executions
     pub fn average_time(&self) -> Duration {
         self.time_sum / self.batch.executions as u32
