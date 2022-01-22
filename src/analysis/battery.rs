@@ -64,18 +64,18 @@ impl<P: Problem> Battery<P> {
     ///     &stop_criterion,
     /// );
     /// ```
-    pub fn new<B, S, SC, LC>(
+    pub fn new<B, S, SC, H>(
         base_seed: usize,
         executions: usize,
         mut solver: B,
         stop_criterion: &SC,
-        mut life_cycle: LC,
+        mut hook: H,
     ) -> Option<Self>
     where
         SC: StopCriterion<P> + Clone,
         B: FnMut(usize, usize) -> S,
-        S: Solver<SC, LC, P = P>,
-        LC: solver::LifeCycle<P>,
+        S: Solver<SC, H, P = P>,
+        H: solver::IterHook<P>,
     {
         let evaluations = (1..=executions as usize)
             .flat_map(|exec_number| {
@@ -83,7 +83,7 @@ impl<P: Problem> Battery<P> {
 
                 let evaluation = {
                     let mut solver = solver(base_seed, exec_number);
-                    solver.solve(&mut stop_criterion.clone(), &mut life_cycle)?
+                    solver.solve(&mut stop_criterion.clone(), &mut hook)?
                 };
 
                 let duration = start.elapsed();

@@ -11,7 +11,7 @@ use super::{Comparison, Evaluation, Problem};
 ///     - They are generic over the [Problem] being solved.
 /// - Heuristics
 ///     - They're [Problem]-specific.
-pub trait Solver<SC: StopCriterion<Self::P>, LC: LifeCycle<Self::P> = BasicLifeCycle> {
+pub trait Solver<SC: StopCriterion<Self::P>, H: IterHook<Self::P> = hook::Print> {
     /// The problem being solved
     type P: Problem;
 
@@ -22,11 +22,7 @@ pub trait Solver<SC: StopCriterion<Self::P>, LC: LifeCycle<Self::P> = BasicLifeC
     ///
     /// By default, it executes [iterate][Self::iterate] while the stop criterion isn't met and returns
     /// the best solution found among all iterations.
-    fn solve(
-        &mut self,
-        stop_criterion: &mut SC,
-        life_cycle: &mut LC,
-    ) -> Option<Evaluation<Self::P>> {
+    fn solve(&mut self, stop_criterion: &mut SC, hook: &mut H) -> Option<Evaluation<Self::P>> {
         let mut best_evaluation = self.iterate(stop_criterion)?;
         stop_criterion.update(best_evaluation.value());
 
@@ -39,10 +35,10 @@ pub trait Solver<SC: StopCriterion<Self::P>, LC: LifeCycle<Self::P> = BasicLifeC
             };
 
             stop_criterion.update(candidate.value());
-            life_cycle.iterated(&candidate);
+            hook.iterated(&candidate);
 
             if let Comparison::Better = candidate.compare(&best_evaluation) {
-                life_cycle.better_changed(&best_evaluation, &candidate);
+                hook.better_changed(&best_evaluation, &candidate);
                 best_evaluation = candidate
             }
         }
@@ -51,23 +47,6 @@ pub trait Solver<SC: StopCriterion<Self::P>, LC: LifeCycle<Self::P> = BasicLifeC
     }
 }
 
-/// This trait allows callers to hook into special moments in the execution of the `Solver` to do things such as logging.
-pub trait LifeCycle<P: Problem> {
-    /// Called right after the iteration is performed. `new` is the newly generated evaluation yield by [iterate][Solver::iterate].
-    fn iterated(&mut self, _new: &Evaluation<P>) {}
+pub mod hook;
 
-    /// Called when the "global" best is being replaced by a new evaluation.
-    fn better_changed(&mut self, _old: &Evaluation<P>, _new: &Evaluation<P>) {}
-}
-
-/// This life cycle just prints the iteration's values on stderr.
-pub struct BasicLifeCycle;
-
-impl<P: Problem> LifeCycle<P> for BasicLifeCycle
-where
-    P::Value: std::fmt::Display,
-{
-    fn iterated(&mut self, new: &Evaluation<P>) {
-        eprintln!("ITER VALUE {}", new.value());
-    }
-}
+pub use hook::IterHook;

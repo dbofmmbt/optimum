@@ -189,12 +189,12 @@ impl<'a, R: Rng, D: Decoder> Brkga<'a, D, R> {
     }
 }
 
-impl<'a, D, R, SC, LC> Solver<SC, LC> for Brkga<'a, D, R>
+impl<'a, D, R, SC, H> Solver<SC, H> for Brkga<'a, D, R>
 where
     D: Decoder,
     R: Rng,
     SC: StopCriterion<D::P>,
-    LC: solver::LifeCycle<D::P>,
+    H: solver::IterHook<D::P>,
 {
     type P = D::P;
 
