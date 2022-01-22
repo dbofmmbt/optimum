@@ -24,6 +24,7 @@ pub trait Solver<SC: StopCriterion<Self::P>, H: IterHook<Self::P> = hook::Print>
     /// the best solution found among all iterations.
     fn solve(&mut self, stop_criterion: &mut SC, hook: &mut H) -> Option<Evaluation<Self::P>> {
         let mut best_evaluation = self.iterate(stop_criterion)?;
+        hook.iterated(&best_evaluation);
         stop_criterion.update(best_evaluation.value());
 
         while !stop_criterion.should_stop() {
