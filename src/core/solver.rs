@@ -51,20 +51,23 @@ pub trait Solver<SC: StopCriterion<Self::P>, LC: LifeCycle<Self::P> = BasicLifeC
     }
 }
 
+/// This trait allows callers to hook into special moments in the execution of the `Solver` to do things such as logging.
 pub trait LifeCycle<P: Problem> {
-    fn iterated(&mut self, new: &Evaluation<P>) {}
+    /// Called right after the iteration is performed. `new` is the newly generated evaluation yield by [iterate][Solver::iterate].
+    fn iterated(&mut self, _new: &Evaluation<P>) {}
 
-    fn better_changed(&mut self, old: &Evaluation<P>, new: &Evaluation<P>) {}
+    /// Called when the "global" best is being replaced by a new evaluation.
+    fn better_changed(&mut self, _old: &Evaluation<P>, _new: &Evaluation<P>) {}
 }
 
+/// This life cycle just prints the iteration's values on stderr.
 pub struct BasicLifeCycle;
 
 impl<P: Problem> LifeCycle<P> for BasicLifeCycle
 where
-    P::Solution: std::fmt::Debug,
-    P::Value: std::fmt::Debug,
+    P::Value: std::fmt::Display,
 {
     fn iterated(&mut self, new: &Evaluation<P>) {
-        eprintln!("ITER VALUE {:?}", new.value());
+        eprintln!("ITER VALUE {}", new.value());
     }
 }
