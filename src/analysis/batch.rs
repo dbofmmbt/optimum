@@ -16,7 +16,7 @@ use crate::core::{solver, Evaluation, Problem, Solver, StopCriterion};
 /// A batch is a sequence of multiple executions of a stochastic solver which is often used to
 /// compare the solver's performance across different seed numbers.
 #[derive(Debug, TypedBuilder)]
-pub struct Batch<'a, P, B, S, SC, H>
+pub struct Batch<P, B, S, SC, H>
 where
     P: Problem,
     SC: StopCriterion<P> + Clone,
@@ -27,11 +27,11 @@ where
     base_seed: usize,
     executions: usize,
     solver: B,
-    stop_criterion: &'a SC,
+    stop_criterion: SC,
     hook: H,
 }
 
-impl<'a, P, B, S, SC, H> Batch<'a, P, B, S, SC, H>
+impl<P, B, S, SC, H> Batch<P, B, S, SC, H>
 where
     P: Problem,
     SC: StopCriterion<P> + Clone,
