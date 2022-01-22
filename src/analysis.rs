@@ -1,5 +1,5 @@
 //! Facilities for the analysis of a solver's performance.
 //!
-//! Check for [battery::Battery] and [battery::Statistics] for basic analysis of multiple executions.
+//! Check for [batch::Batch] and [batch::Statistics] for basic analysis of multiple executions.
 
-pub mod battery;
+pub mod batch;

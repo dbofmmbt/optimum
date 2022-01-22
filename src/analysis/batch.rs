@@ -11,22 +11,22 @@ use std::{
 
 use crate::core::{solver, Evaluation, Problem, Solver, StopCriterion};
 
-/// A battery is a sequence of multiple executions of a stochastic solver which is often used to
+/// A batch is a sequence of multiple executions of a stochastic solver which is often used to
 /// compare the solver's performance across different seed numbers.
-pub struct Battery<P: Problem> {
+pub struct Batch<P: Problem> {
     executions: usize,
     base_seed: usize,
     evaluations: Vec<(usize, Evaluation<P>, Duration)>,
 }
 
-impl<P> Debug for Battery<P>
+impl<P> Debug for Batch<P>
 where
     P: Problem + Debug,
     P::Solution: Debug,
     P::Value: Debug,
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("Battery")
+        f.debug_struct("Batch")
             .field("base seed", &self.base_seed)
             .field("executions", &self.executions)
             .field("evaluations", &self.evaluations)
@@ -34,8 +34,8 @@ where
     }
 }
 
-impl<P: Problem> Battery<P> {
-    /// Runs a new `Battery`.
+impl<P: Problem> Batch<P> {
+    /// Runs a new `Batch`.
     ///
     /// ## Params
     ///
@@ -52,7 +52,7 @@ impl<P: Problem> Battery<P> {
     ///
     /// ```ignore
     /// let stop_criterion = IterCriterion::new(100);
-    /// let battery = Battery::new(
+    /// let batch = Batch::new(
     ///     1,
     ///     10,
     ///     |seed, exec_number| {
@@ -103,7 +103,7 @@ impl<P: Problem> Battery<P> {
         }
     }
 
-    /// Get a reference to the battery's evaluations.
+    /// Get a reference to the batch's evaluations.
     pub fn evaluations(&self) -> &[(usize, Evaluation<P>, Duration)] {
         &self.evaluations
     }
