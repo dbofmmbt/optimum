@@ -22,7 +22,7 @@ where
     SC: StopCriterion<P> + Clone,
     B: FnMut(usize, usize) -> S,
     S: Solver<SC, H, P = P>,
-    H: solver::IterHook<P>,
+    H: solver::IterHook<P> + Clone,
 {
     base_seed: usize,
     executions: usize,
@@ -37,7 +37,7 @@ where
     SC: StopCriterion<P> + Clone,
     B: FnMut(usize, usize) -> S,
     S: Solver<SC, H, P = P>,
-    H: solver::IterHook<P>,
+    H: solver::IterHook<P> + Clone,
 {
     /// Runs a new `Batch`.
     ///
@@ -55,28 +55,33 @@ where
     ///     .run()
     ///     .unwrap();
     /// ```
-    pub fn run(mut self) -> Option<BatchResult<P>> {
-        let evaluations = (1..=self.executions as usize)
+    pub fn run(mut self) -> Option<BatchResult<P, H>> {
+        let executions = (1..=self.executions as usize)
             .flat_map(|exec_number| {
                 let start = Instant::now();
 
+                let mut hook = self.hook.clone();
                 let evaluation = {
                     let mut solver = (self.solver)(self.base_seed, exec_number);
-                    solver.solve(&mut self.stop_criterion.clone(), &mut self.hook)?
+                    solver.solve(&mut self.stop_criterion.clone(), &mut hook)?
                 };
 
                 let duration = start.elapsed();
 
-                Some((exec_number, evaluation, duration))
+                Some(Execution {
+                    number: exec_number,
+                    evaluation,
+                    duration,
+                    hook,
+                })
             })
             .collect::<Vec<_>>();
 
-        if evaluations.is_empty() {
+        if executions.is_empty() {
             None
         } else {
             Some(BatchResult {
-                evaluations,
-                executions: self.executions,
+                executions,
                 base_seed: self.base_seed,
             })
         }
@@ -84,21 +89,61 @@ where
 }
 
 /// The results obtained after running a [Batch].
-pub struct BatchResult<P: Problem> {
-    executions: usize,
+pub struct BatchResult<P: Problem, H> {
     base_seed: usize,
-    evaluations: Vec<(usize, Evaluation<P>, Duration)>,
+    executions: Vec<Execution<P, H>>,
 }
 
-impl<P: Problem> BatchResult<P> {
-    /// Get a reference to the batch's evaluations, which are the best solutions for each execution.
-    pub fn evaluations(&self) -> &[(usize, Evaluation<P>, Duration)] {
-        &self.evaluations
+/// an `Execution` contains information about a full execution on a batch,
+/// such as best evaluation obtained, its number and duration. It's also possible
+/// to obtain e.g. metadata from the [solver::IterHook] used during that execution.
+pub struct Execution<P: Problem, H> {
+    number: usize,
+    evaluation: Evaluation<P>,
+    duration: Duration,
+    hook: H,
+}
+
+impl<P: Problem, H> Execution<P, H> {
+    /// Get a reference to the execution's number.
+    pub fn number(&self) -> usize {
+        self.number
     }
 
-    /// Get the number of executions performed.
-    pub fn executions(&self) -> usize {
-        self.executions
+    /// Get a reference to the execution's evaluation.
+    pub fn evaluation(&self) -> &Evaluation<P> {
+        &self.evaluation
+    }
+
+    /// Get a reference to the execution's duration.
+    pub fn duration(&self) -> Duration {
+        self.duration
+    }
+
+    /// Get a reference to the execution's hook.
+    pub fn hook(&self) -> &H {
+        &self.hook
+    }
+}
+
+impl<P, H> Debug for Execution<P, H>
+where
+    P::Value: Debug,
+    P: Problem,
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Execution")
+            .field("number", &self.number)
+            .field("solution value", &self.evaluation.value())
+            .field("duration", &self.duration)
+            .finish()
+    }
+}
+
+impl<P: Problem, H> BatchResult<P, H> {
+    /// Get a reference to the batch's evaluations, which are the best solutions for each execution.
+    pub fn executions(&self) -> &[Execution<P, H>] {
+        &self.executions
     }
 
     /// Get the base seed used by the executions.
@@ -107,17 +152,17 @@ impl<P: Problem> BatchResult<P> {
     }
 }
 
-impl<P> Debug for BatchResult<P>
+impl<P, H> Debug for BatchResult<P, H>
 where
     P: Problem + Debug,
     P::Solution: Debug,
     P::Value: Debug,
+    H: Debug,
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("BatchResult")
             .field("base seed", &self.base_seed)
-            .field("executions", &self.executions)
-            .field("evaluations", &self.evaluations)
+            .field("evaluations", &self.executions)
             .finish()
     }
 }
