@@ -9,81 +9,60 @@ use std::{
     time::{Duration, Instant},
 };
 
+use typed_builder::TypedBuilder;
+
 use crate::core::{solver, Evaluation, Problem, Solver, StopCriterion};
 
 /// A batch is a sequence of multiple executions of a stochastic solver which is often used to
 /// compare the solver's performance across different seed numbers.
-pub struct Batch<P: Problem> {
-    executions: usize,
-    base_seed: usize,
-    evaluations: Vec<(usize, Evaluation<P>, Duration)>,
-}
-
-impl<P> Debug for Batch<P>
+#[derive(Debug, TypedBuilder)]
+pub struct Batch<'a, P, B, S, SC, H>
 where
-    P: Problem + Debug,
-    P::Solution: Debug,
-    P::Value: Debug,
+    P: Problem,
+    SC: StopCriterion<P> + Clone,
+    B: FnMut(usize, usize) -> S,
+    S: Solver<SC, H, P = P>,
+    H: solver::IterHook<P>,
 {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("Batch")
-            .field("base seed", &self.base_seed)
-            .field("executions", &self.executions)
-            .field("evaluations", &self.evaluations)
-            .finish()
-    }
+    base_seed: usize,
+    executions: usize,
+    solver: B,
+    stop_criterion: &'a SC,
+    hook: H,
 }
 
-impl<P: Problem> Batch<P> {
+impl<'a, P, B, S, SC, H> Batch<'a, P, B, S, SC, H>
+where
+    P: Problem,
+    SC: StopCriterion<P> + Clone,
+    B: FnMut(usize, usize) -> S,
+    S: Solver<SC, H, P = P>,
+    H: solver::IterHook<P>,
+{
     /// Runs a new `Batch`.
-    ///
-    /// ## Params
-    ///
-    /// - `base_seed`: the seed value passed to the `solver` parameter.
-    ///
-    /// - `executions`: The number of executions
-    ///
-    /// - `solver`: this is a way to let you configure/build your solver based on the `base_seed` and the number of the current execution.
-    ///     It receives the `base_seed` and the current execution number, which goes from `1..=executions`.  
-    ///
-    /// - `stop_criterion`: used to control how long the solver will run on each execution.
     ///
     /// ## Example
     ///
     /// ```ignore
     /// let stop_criterion = IterCriterion::new(100);
-    /// let batch = Batch::new(
-    ///     1,
-    ///     10,
-    ///     |seed, exec_number| {
-    ///         /// ...
-    ///         let solver = build_solver(seed, exec_number);
-    ///         /// ...
-    ///         solver
-    ///     }
-    ///     &stop_criterion,
-    /// );
+    /// let batch = Batch::builder()
+    ///     .base_seed(1)
+    ///     .executions(10)
+    ///     .solver(build_solver)
+    ///     .stop_criterion(&stop_criterion)
+    ///     .hook(hook::Empty)
+    ///     .build()
+    ///     .run()
+    ///     .unwrap();
     /// ```
-    pub fn new<B, S, SC, H>(
-        base_seed: usize,
-        executions: usize,
-        mut solver: B,
-        stop_criterion: &SC,
-        mut hook: H,
-    ) -> Option<Self>
-    where
-        SC: StopCriterion<P> + Clone,
-        B: FnMut(usize, usize) -> S,
-        S: Solver<SC, H, P = P>,
-        H: solver::IterHook<P>,
-    {
-        let evaluations = (1..=executions as usize)
+    pub fn run(mut self) -> Option<BatchResult<P>> {
+        let evaluations = (1..=self.executions as usize)
             .flat_map(|exec_number| {
                 let start = Instant::now();
 
                 let evaluation = {
-                    let mut solver = solver(base_seed, exec_number);
-                    solver.solve(&mut stop_criterion.clone(), &mut hook)?
+                    let mut solver = (self.solver)(self.base_seed, exec_number);
+                    solver.solve(&mut self.stop_criterion.clone(), &mut self.hook)?
                 };
 
                 let duration = start.elapsed();
@@ -95,15 +74,24 @@ impl<P: Problem> Batch<P> {
         if evaluations.is_empty() {
             None
         } else {
-            Some(Self {
+            Some(BatchResult {
                 evaluations,
-                executions,
-                base_seed,
+                executions: self.executions,
+                base_seed: self.base_seed,
             })
         }
     }
+}
 
-    /// Get a reference to the batch's evaluations.
+/// The results obtained after running a [Batch].
+pub struct BatchResult<P: Problem> {
+    executions: usize,
+    base_seed: usize,
+    evaluations: Vec<(usize, Evaluation<P>, Duration)>,
+}
+
+impl<P: Problem> BatchResult<P> {
+    /// Get a reference to the batch's evaluations, which are the best solutions for each execution.
     pub fn evaluations(&self) -> &[(usize, Evaluation<P>, Duration)] {
         &self.evaluations
     }
@@ -116,5 +104,20 @@ impl<P: Problem> Batch<P> {
     /// Get the base seed used by the executions.
     pub fn base_seed(&self) -> usize {
         self.base_seed
+    }
+}
+
+impl<P> Debug for BatchResult<P>
+where
+    P: Problem + Debug,
+    P::Solution: Debug,
+    P::Value: Debug,
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("BatchResult")
+            .field("base seed", &self.base_seed)
+            .field("executions", &self.executions)
+            .field("evaluations", &self.evaluations)
+            .finish()
     }
 }

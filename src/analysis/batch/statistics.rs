@@ -5,13 +5,13 @@ use std::{
 
 use crate::core::{Evaluation, Objective, Problem};
 
-use super::Batch;
+use super::BatchResult;
 
 /// Process and collect statistics about a previously executed `Batch`.
 pub struct Statistics<'a, P: Problem> {
     value_sum: f64,
     time_sum: Duration,
-    batch: &'a Batch<P>,
+    batch: &'a BatchResult<P>,
 }
 
 impl<'a, P: Problem> Statistics<'a, P>
@@ -19,7 +19,7 @@ where
     P::Value: Into<f64>,
 {
     /// Generate `Statistics` for a given `batch`.
-    pub fn new(batch: &'a Batch<P>) -> Self {
+    pub fn new(batch: &'a BatchResult<P>) -> Self {
         let score_sum = batch
             .evaluations()
             .iter()
