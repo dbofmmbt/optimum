@@ -9,7 +9,8 @@
 //!
 
 use crate::core::{
-    solver, Problem, StopCriterion, {Evaluation, Solver},
+    solver::IterHook,
+    Problem, StopCriterion, {Evaluation, Solver},
 };
 
 use super::{
@@ -194,12 +195,13 @@ where
     D: Decoder,
     R: Rng,
     SC: StopCriterion<D::P>,
-    H: solver::IterHook<D::P>,
+    H: BrkgaHook<D>,
 {
     type P = D::P;
 
-    fn iterate(&mut self, _: &mut SC) -> Option<Evaluation<Self::P>> {
+    fn iterate(&mut self, _: &mut SC, hook: &mut H) -> Option<Evaluation<Self::P>> {
         self.evolve();
+        hook.evolved(&self.current);
 
         let solution = self.decoder.decode(&self.best().keys);
         let evaluation = self.decoder.problem().objective_function(solution);
@@ -225,3 +227,17 @@ pub struct Params {
     /// Should be a value in \[0.5, 1.0\]
     pub crossover_bias: f64,
 }
+
+/// A type which can hook into BRKGA-specific events.
+pub trait BrkgaHook<D: Decoder>: IterHook<D::P> {
+    /// Called right after an evolution is performed. `population` is the most recent generation.
+    fn evolved(&mut self, _: &BrkgaPopulation<D>) {}
+}
+
+/// A hook that does nothing at all.
+#[derive(Clone)]
+pub struct EmptyHook;
+
+impl<D: Decoder> BrkgaHook<D> for EmptyHook {}
+
+impl<P: Problem> IterHook<P> for EmptyHook {}

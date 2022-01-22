@@ -11,25 +11,25 @@ use super::{Comparison, Evaluation, Problem};
 ///     - They are generic over the [Problem] being solved.
 /// - Heuristics
 ///     - They're [Problem]-specific.
-pub trait Solver<SC: StopCriterion<Self::P>, H: IterHook<Self::P> = hook::Print> {
+pub trait Solver<SC: StopCriterion<Self::P>, H: IterHook<Self::P>> {
     /// The problem being solved
     type P: Problem;
 
     /// A iteration consists on a step to generate a candidate solution
-    fn iterate(&mut self, stop_criterion: &mut SC) -> Option<Evaluation<Self::P>>;
+    fn iterate(&mut self, stop_criterion: &mut SC, hook: &mut H) -> Option<Evaluation<Self::P>>;
 
     /// Execute the whole process defined by the solver to achieve a good solution
     ///
     /// By default, it executes [iterate][Self::iterate] while the stop criterion isn't met and returns
     /// the best solution found among all iterations.
     fn solve(&mut self, stop_criterion: &mut SC, hook: &mut H) -> Option<Evaluation<Self::P>> {
-        let mut best_evaluation = self.iterate(stop_criterion)?;
+        let mut best_evaluation = self.iterate(stop_criterion, hook)?;
         hook.iterated(&best_evaluation);
         stop_criterion.update(best_evaluation.value());
 
         while !stop_criterion.should_stop() {
             let candidate = {
-                match self.iterate(stop_criterion) {
+                match self.iterate(stop_criterion, hook) {
                     Some(s) => s,
                     None => break,
                 }
