@@ -9,7 +9,7 @@ use std::{
     time::{Duration, Instant},
 };
 
-use crate::core::{Evaluation, Problem, Solver, StopCriterion};
+use crate::core::{solver, Evaluation, Problem, Solver, StopCriterion};
 
 /// A battery is a sequence of multiple executions of a stochastic solver which is often used to
 /// compare the solver's performance across different seed numbers.
@@ -38,7 +38,7 @@ impl<P: Problem> Battery<P> {
     /// Runs a new `Battery`.
     ///
     /// ## Params
-    /// 
+    ///
     /// - `base_seed`: the seed value passed to the `solver` parameter.
     ///
     /// - `executions`: The number of executions
@@ -49,7 +49,7 @@ impl<P: Problem> Battery<P> {
     /// - `stop_criterion`: used to control how long the solver will run on each execution.
     ///
     /// ## Example
-    /// 
+    ///
     /// ```ignore
     /// let stop_criterion = IterCriterion::new(100);
     /// let battery = Battery::new(
@@ -64,16 +64,18 @@ impl<P: Problem> Battery<P> {
     ///     &stop_criterion,
     /// );
     /// ```
-    pub fn new<B, S, SC>(
+    pub fn new<B, S, SC, LC>(
         base_seed: usize,
         executions: usize,
         mut solver: B,
         stop_criterion: &SC,
+        mut life_cycle: LC,
     ) -> Option<Self>
     where
         SC: StopCriterion<P> + Clone,
         B: FnMut(usize, usize) -> S,
-        S: Solver<SC, P = P>,
+        S: Solver<SC, LC, P = P>,
+        LC: solver::LifeCycle<P>,
     {
         let evaluations = (1..=executions as usize)
             .flat_map(|exec_number| {
@@ -81,7 +83,7 @@ impl<P: Problem> Battery<P> {
 
                 let evaluation = {
                     let mut solver = solver(base_seed, exec_number);
-                    solver.solve(&mut stop_criterion.clone())?
+                    solver.solve(&mut stop_criterion.clone(), &mut life_cycle)?
                 };
 
                 let duration = start.elapsed();

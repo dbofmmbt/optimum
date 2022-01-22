@@ -9,7 +9,7 @@
 //!
 
 use crate::core::{
-    Problem, StopCriterion, {Evaluation, Solver},
+    solver, Problem, StopCriterion, {Evaluation, Solver},
 };
 
 use super::{
@@ -189,11 +189,12 @@ impl<'a, R: Rng, D: Decoder> Brkga<'a, D, R> {
     }
 }
 
-impl<'a, D, R, SC> Solver<SC> for Brkga<'a, D, R>
+impl<'a, D, R, SC, LC> Solver<SC, LC> for Brkga<'a, D, R>
 where
     D: Decoder,
     R: Rng,
     SC: StopCriterion<D::P>,
+    LC: solver::LifeCycle<D::P>,
 {
     type P = D::P;
 
