@@ -58,18 +58,23 @@ impl<P: Problem> Evaluation<P> {
 
     /// Compare `self` with the `other` value directly.
     pub fn compare_value(&self, other: P::Value) -> Comparison {
-        match P::OBJECTIVE {
-            Objective::Min => match self.value.cmp(&other) {
-                Ordering::Less => Comparison::Better,
-                Ordering::Equal => Comparison::Equal,
-                Ordering::Greater => Comparison::Worse,
-            },
-            Objective::Max => match self.value.cmp(&other) {
-                Ordering::Less => Comparison::Worse,
-                Ordering::Equal => Comparison::Equal,
-                Ordering::Greater => Comparison::Better,
-            },
-        }
+        compare_values::<P>(self.value, other)
+    }
+}
+
+/// Compare `a` with `b` value directly.
+pub fn compare_values<P: Problem>(a: P::Value, b: P::Value) -> Comparison {
+    match P::OBJECTIVE {
+        Objective::Min => match a.cmp(&b) {
+            Ordering::Less => Comparison::Better,
+            Ordering::Equal => Comparison::Equal,
+            Ordering::Greater => Comparison::Worse,
+        },
+        Objective::Max => match a.cmp(&b) {
+            Ordering::Less => Comparison::Worse,
+            Ordering::Equal => Comparison::Equal,
+            Ordering::Greater => Comparison::Better,
+        },
     }
 }
 
