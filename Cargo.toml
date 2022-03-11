@@ -19,3 +19,5 @@ typed-builder = "0.9.1"
 
 [dev-dependencies]
 ordered-float = "2.10.0"
+ndarray = "0.15.4"
+itertools = "0.10.3"
