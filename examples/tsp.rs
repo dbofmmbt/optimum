@@ -92,10 +92,6 @@ impl Move<Tsp> for TwoOptMove {
 
         Evaluation::new(solution, value)
     }
-
-    fn reverse(&self) -> Self {
-        Self(self.1, self.0)
-    }
 }
 
 impl<R: Rng> Neighborhood<Tsp> for TwoOpt<'_, R> {

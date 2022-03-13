@@ -9,8 +9,6 @@ pub trait Neighborhood<P: Problem>: Iterator<Item = Self::Move> {
 pub trait Move<P: Problem> {
     fn apply(&self, problem: &P, evaluation: Evaluation<P>) -> Evaluation<P>;
 
-    fn reverse(&self) -> Self;
-
     fn value(&self, problem: &P, evaluation: &Evaluation<P>) -> P::Value;
 
     fn compare(&self, problem: &P, evaluation: &Evaluation<P>) -> Comparison {
