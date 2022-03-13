@@ -1,26 +1,24 @@
-use std::marker::PhantomData;
-
-use crate::core::{compare_values, neighborhood::Neighborhood, Comparison, Problem};
+use crate::core::{compare_values, neighborhood::Neighborhood, Comparison, Evaluation, Problem};
 
 use super::Move;
 
-pub struct FirstImprovement<'n, 's, P: Problem, N: Neighborhood<P>> {
+pub struct FirstImprovement<'n, 'p, P: Problem, N: Neighborhood<P>> {
     neighborhood: &'n mut N,
-    solution: &'s P::Solution,
-    p: PhantomData<P>,
+    problem: &'p P,
+    evaluation: &'p Evaluation<P>,
 }
 
-impl<'n, 's, P: Problem, N: Neighborhood<P>> FirstImprovement<'n, 's, P, N> {
-    pub fn new(neighborhood: &'n mut N, solution: &'s P::Solution) -> Self {
+impl<'n, 'p, P: Problem, N: Neighborhood<P>> FirstImprovement<'n, 'p, P, N> {
+    pub fn new(problem: &'p P, neighborhood: &'n mut N, evaluation: &'p Evaluation<P>) -> Self {
         Self {
+            problem,
             neighborhood,
-            solution,
-            p: PhantomData,
+            evaluation,
         }
     }
 }
 
-impl<'n, 's, P, N> Iterator for FirstImprovement<'n, 's, P, N>
+impl<'n, 'p, P, N> Iterator for FirstImprovement<'n, 'p, P, N>
 where
     P: Problem,
     N: Neighborhood<P>,
@@ -31,30 +29,30 @@ where
         loop {
             let r#move = self.neighborhood.next()?;
 
-            if r#move.compare(self.solution) == Comparison::Better {
+            if r#move.compare(self.problem, self.evaluation) == Comparison::Better {
                 return Some(r#move);
             }
         }
     }
 }
 
-pub struct BestImprovement<'n, 's, P: Problem, N: Neighborhood<P>> {
+pub struct BestImprovement<'n, 'p, P: Problem, N: Neighborhood<P>> {
     neighborhood: &'n mut N,
-    solution: &'s P::Solution,
-    p: PhantomData<P>,
+    problem: &'p P,
+    evaluation: &'p Evaluation<P>,
 }
 
-impl<'n, 's, P: Problem, N: Neighborhood<P>> BestImprovement<'n, 's, P, N> {
-    pub fn new(neighborhood: &'n mut N, solution: &'s P::Solution) -> Self {
+impl<'n, 'p, P: Problem, N: Neighborhood<P>> BestImprovement<'n, 'p, P, N> {
+    pub fn new(problem: &'p P, neighborhood: &'n mut N, evaluation: &'p Evaluation<P>) -> Self {
         Self {
+            problem,
             neighborhood,
-            solution,
-            p: PhantomData,
+            evaluation,
         }
     }
 }
 
-impl<'n, 's, P, N> Iterator for BestImprovement<'n, 's, P, N>
+impl<'n, 'p, P, N> Iterator for BestImprovement<'n, 'p, P, N>
 where
     P: Problem,
     N: Neighborhood<P>,
@@ -63,10 +61,11 @@ where
 
     fn next(&mut self) -> Option<Self::Item> {
         let mut best = self.neighborhood.next()?;
-        let s = self.solution;
+        let e = self.evaluation;
+        let p = self.problem;
 
         for r#move in self.neighborhood.by_ref() {
-            if compare_values::<P>(r#move.diff(s), best.diff(s)) == Comparison::Better {
+            if compare_values::<P>(r#move.value(p, e), best.value(p, e)) == Comparison::Better {
                 best = r#move
             }
         }
@@ -74,7 +73,7 @@ where
         // Check if the best move found enhances the solution.
         // When you reach a local optimum, the best neighbor found
         // isn't better than the current solution.
-        if best.compare(s) == Comparison::Better {
+        if best.compare(p, e) == Comparison::Better {
             Some(best)
         } else {
             None

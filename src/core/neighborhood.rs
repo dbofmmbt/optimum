@@ -1,20 +1,22 @@
-use super::{Comparison, Problem};
+#![allow(missing_docs)]
+
+use super::{compare_values, Comparison, Evaluation, Problem};
 
 pub trait Neighborhood<P: Problem>: Iterator<Item = Self::Move> {
     type Move: Move<P>;
 }
 
-// TODO how to evaluate neighbors properly???
-pub trait NeighborEvaluator<P: Problem> {
-    fn compare(&self, r#move: (), solution: &P::Solution) -> Comparison;
-
-    fn diff(&self, r#move: (), solution: &P::Solution) -> P::Value;
-}
-
 pub trait Move<P: Problem> {
-    fn apply(&self, solution: P::Solution) -> P::Solution;
+    fn apply(&self, problem: &P, evaluation: Evaluation<P>) -> Evaluation<P>;
 
     fn reverse(&self) -> Self;
+
+    fn value(&self, problem: &P, evaluation: &Evaluation<P>) -> P::Value;
+
+    fn compare(&self, problem: &P, evaluation: &Evaluation<P>) -> Comparison {
+        let neighbor_value = self.value(problem, evaluation);
+        compare_values::<P>(neighbor_value, evaluation.value())
+    }
 }
 
 pub mod explorers;
