@@ -1,9 +1,6 @@
 use std::time::Duration;
 
-use optimum::core::{
-    neighborhood::{Move, Neighborhood},
-    Evaluation, Objective, Problem,
-};
+use optimum::core::{neighborhood::Move, Evaluation, Objective, Problem};
 use ordered_float::NotNan;
 use rand::{thread_rng, Rng};
 
@@ -105,10 +102,6 @@ impl Move<Knapsack> for RandomFlipMove {
             evaluation.value() - item.value
         }
     }
-}
-
-impl<R: Rng> Neighborhood<Knapsack> for RandomFlip<R> {
-    type Move = RandomFlipMove;
 }
 
 impl<R: Rng> Iterator for RandomFlip<R> {

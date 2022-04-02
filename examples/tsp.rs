@@ -95,10 +95,7 @@ pub mod problem_definition {
 }
 
 pub mod neighborhood {
-    use optimum::core::{
-        neighborhood::{Move, Neighborhood},
-        Evaluation, Problem,
-    };
+    use optimum::core::{neighborhood::Move, Evaluation, Problem};
     use rand::Rng;
 
     use crate::problem_definition::{Tsp, TspSolution};
@@ -108,12 +105,8 @@ pub mod neighborhood {
         pub solution: &'a TspSolution,
     }
 
-    impl<R: Rng> Neighborhood<Tsp> for TwoOpt<'_, R> {
-        type Move = TwoOptMove;
-    }
-
     impl<R: Rng> Iterator for TwoOpt<'_, R> {
-        type Item = <Self as Neighborhood<Tsp>>::Move;
+        type Item = TwoOptMove;
 
         fn next(&mut self) -> Option<Self::Item> {
             let range = 0..self.solution.cities.len();

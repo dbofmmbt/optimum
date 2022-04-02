@@ -2,10 +2,6 @@
 
 use super::{compare_values, Comparison, Evaluation, Problem};
 
-pub trait Neighborhood<P: Problem>: Iterator<Item = Self::Move> {
-    type Move: Move<P>;
-}
-
 pub trait Move<P: Problem> {
     fn apply(&self, problem: &P, evaluation: Evaluation<P>) -> Evaluation<P>;
 

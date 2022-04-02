@@ -1,16 +1,16 @@
 use std::marker::PhantomData;
 
-use crate::core::{compare_values, neighborhood::Neighborhood, Comparison, Evaluation, Problem};
+use crate::core::{compare_values, Comparison, Evaluation, Problem};
 
 use super::Move;
 
-pub struct FirstImprovement<'n, 'p, P: Problem, N: Neighborhood<P>> {
+pub struct FirstImprovement<'n, 'p, P: Problem, N> {
     neighborhood: &'n mut N,
     problem: &'p P,
     evaluation: &'p Evaluation<P>,
 }
 
-impl<'n, 'p, P: Problem, N: Neighborhood<P>> FirstImprovement<'n, 'p, P, N> {
+impl<'n, 'p, P: Problem, N> FirstImprovement<'n, 'p, P, N> {
     pub fn new(problem: &'p P, neighborhood: &'n mut N, evaluation: &'p Evaluation<P>) -> Self {
         Self {
             problem,
@@ -23,9 +23,10 @@ impl<'n, 'p, P: Problem, N: Neighborhood<P>> FirstImprovement<'n, 'p, P, N> {
 impl<'n, 'p, P, N> Iterator for FirstImprovement<'n, 'p, P, N>
 where
     P: Problem,
-    N: Neighborhood<P>,
+    N: Iterator,
+    N::Item: Move<P>,
 {
-    type Item = N::Move;
+    type Item = N::Item;
 
     fn next(&mut self) -> Option<Self::Item> {
         loop {
@@ -38,13 +39,13 @@ where
     }
 }
 
-pub struct BestImprovement<'n, 'p, P: Problem, N: Neighborhood<P>> {
+pub struct BestImprovement<'n, 'p, P: Problem, N> {
     neighborhood: &'n mut N,
     problem: &'p P,
     evaluation: &'p Evaluation<P>,
 }
 
-impl<'n, 'p, P: Problem, N: Neighborhood<P>> BestImprovement<'n, 'p, P, N> {
+impl<'n, 'p, P: Problem, N> BestImprovement<'n, 'p, P, N> {
     pub fn new(problem: &'p P, neighborhood: &'n mut N, evaluation: &'p Evaluation<P>) -> Self {
         Self {
             problem,
@@ -57,9 +58,10 @@ impl<'n, 'p, P: Problem, N: Neighborhood<P>> BestImprovement<'n, 'p, P, N> {
 impl<'n, 'p, P, N> Iterator for BestImprovement<'n, 'p, P, N>
 where
     P: Problem,
-    N: Neighborhood<P>,
+    N: Iterator,
+    N::Item: Move<P>,
 {
-    type Item = N::Move;
+    type Item = N::Item;
 
     fn next(&mut self) -> Option<Self::Item> {
         let mut best = self.neighborhood.next()?;
@@ -90,7 +92,7 @@ pub struct Finite<P, N> {
     current: usize,
 }
 
-impl<P: Problem, N: Neighborhood<P>> Finite<P, N> {
+impl<P: Problem, N> Finite<P, N> {
     pub fn new(neighborhood: N, limit: usize) -> Self {
         Finite {
             _phantom: PhantomData,
@@ -101,11 +103,12 @@ impl<P: Problem, N: Neighborhood<P>> Finite<P, N> {
     }
 }
 
-impl<P: Problem, N: Neighborhood<P>> Neighborhood<P> for Finite<P, N> {
-    type Move = N::Move;
-}
-
-impl<P: Problem, N: Neighborhood<P>> Iterator for Finite<P, N> {
+impl<P, N> Iterator for Finite<P, N>
+where
+    P: Problem,
+    N: Iterator,
+    N::Item: Move<P>,
+{
     type Item = <N as Iterator>::Item;
 
     fn next(&mut self) -> Option<Self::Item> {
