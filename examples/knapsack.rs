@@ -10,18 +10,6 @@ struct Knapsack {
     available_items: Vec<Item>,
 }
 
-#[derive(Debug)]
-struct Item {
-    value: f64,
-    weight: f64,
-}
-
-#[derive(Debug)]
-struct KnapsackSolution {
-    choices: Vec<bool>,
-    total_weight: f64,
-}
-
 impl Problem for Knapsack {
     /// We want to maximize the value we carry in the knapsack
     const OBJECTIVE: Objective = Objective::Max;
@@ -44,9 +32,29 @@ impl Problem for Knapsack {
     }
 }
 
+#[derive(Debug)]
+struct Item {
+    value: f64,
+    weight: f64,
+}
+
+#[derive(Debug)]
+struct KnapsackSolution {
+    choices: Vec<bool>,
+    total_weight: f64,
+}
+
 struct RandomFlip<R> {
     rng: R,
     problem_size: usize,
+}
+
+impl<R: Rng> Iterator for RandomFlip<R> {
+    type Item = RandomFlipMove;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        Some(RandomFlipMove(self.rng.gen_range(0..self.problem_size)))
+    }
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -101,14 +109,6 @@ impl Move<Knapsack> for RandomFlipMove {
         } else {
             evaluation.value() - item.value
         }
-    }
-}
-
-impl<R: Rng> Iterator for RandomFlip<R> {
-    type Item = RandomFlipMove;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        Some(RandomFlipMove(self.rng.gen_range(0..self.problem_size)))
     }
 }
 
