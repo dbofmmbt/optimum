@@ -10,6 +10,8 @@ Be aware that some stuff **will** probably change, specially those I'm working r
 
 Based on my experience working with Metaheuristics, I'm building a framework capable of accelerating the development of heuristic algorithms efficiently by leveraging Rust features that ease the creation of reliable and efficient software.
 
+Until a `0.1.0` version is released, I recommend you to depend on the `main` branch when using `optimum`.
+
 ## Goals
 
 Optimum aims to be:
