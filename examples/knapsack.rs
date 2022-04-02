@@ -161,7 +161,7 @@ fn main() {
         }
 
         evaluation = r#move.apply(&problem, evaluation);
-        std::thread::sleep(Duration::from_secs(2));
+        std::thread::sleep(Duration::from_secs(1));
         dbg!(&evaluation);
     }
 }
