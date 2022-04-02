@@ -1,6 +1,6 @@
 mod evaluation;
 
-pub use evaluation::{Comparison, Evaluation};
+pub use evaluation::{compare_values, Comparison, Evaluation};
 
 /// Determines if you want to minimize or maximize the [objective_function][Problem::objective_function]
 pub enum Objective {
