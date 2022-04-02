@@ -1,3 +1,5 @@
+use std::marker::PhantomData;
+
 use crate::core::{compare_values, neighborhood::Neighborhood, Comparison, Evaluation, Problem};
 
 use super::Move;
@@ -77,6 +79,41 @@ where
             Some(best)
         } else {
             None
+        }
+    }
+}
+
+pub struct Finite<P, N> {
+    _phantom: PhantomData<P>,
+    inner: N,
+    limit: usize,
+    current: usize,
+}
+
+impl<P: Problem, N: Neighborhood<P>> Finite<P, N> {
+    pub fn new(neighborhood: N, limit: usize) -> Self {
+        Finite {
+            _phantom: PhantomData,
+            inner: neighborhood,
+            limit,
+            current: 0,
+        }
+    }
+}
+
+impl<P: Problem, N: Neighborhood<P>> Neighborhood<P> for Finite<P, N> {
+    type Move = N::Move;
+}
+
+impl<P: Problem, N: Neighborhood<P>> Iterator for Finite<P, N> {
+    type Item = <N as Iterator>::Item;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.current == self.limit {
+            None
+        } else {
+            self.current += 1;
+            self.inner.next()
         }
     }
 }
