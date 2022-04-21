@@ -17,6 +17,32 @@ pub trait LocalSearch<P: Problem> {
     ) -> Evaluation<P>;
 }
 
+/// A simple local search strategy which just applies the first movement yielded by the given [Neighborhood].
+pub struct HillWalking<P, N> {
+    neighborhood: N,
+    _p: PhantomData<P>,
+}
+
+impl<P: Problem, N: Neighborhood<P>> HillWalking<P, N> {
+    pub fn new(neighborhood: N) -> Self {
+        Self {
+            neighborhood,
+            _p: PhantomData,
+        }
+    }
+}
+
+impl<P: Problem, N: Neighborhood<P>> LocalSearch<P> for HillWalking<P, N> {
+    fn reach_local_optima(
+        &mut self,
+        problem: &P,
+        evaluation: Evaluation<P>,
+        stop_criterion: &mut impl StopCriterion<P>,
+    ) -> Evaluation<P> {
+        go_to_local_optima(problem, evaluation, stop_criterion, &mut self.neighborhood)
+    }
+}
+
 /// Reaches the local optima by applying first-improving movements on the current solution.
 pub struct HillClimbing<P, N> {
     _p: PhantomData<P>,
