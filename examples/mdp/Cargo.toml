@@ -1,0 +1,15 @@
+[package]
+name = "mdp"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow = "1.0.52"
+clap = { version = "3.0.4", features = ["derive"] }
+ndarray = "0.15.4"
+optimum = { path = "../.." }
+ordered-float = "2.8.0"
+rand = "0.8.4"
+rand_pcg = "0.3.1"
