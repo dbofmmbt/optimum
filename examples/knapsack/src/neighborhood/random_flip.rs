@@ -1,4 +1,7 @@
-use optimum::core::{neighborhood::Move, Evaluation, Problem};
+use optimum::{
+    core::{Evaluation, Problem},
+    metaheuristics::neighborhood::Move,
+};
 use rand::Rng;
 
 use crate::problem::{Knapsack, KnapsackSolution};

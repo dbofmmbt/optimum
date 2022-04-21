@@ -1,4 +1,7 @@
-use optimum::core::{neighborhood::Move, Evaluation, Problem};
+use optimum::{
+    core::{Evaluation, Problem},
+    metaheuristics::neighborhood::Move,
+};
 
 use crate::problem::Tsp;
 

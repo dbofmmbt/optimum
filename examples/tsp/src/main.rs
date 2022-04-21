@@ -8,13 +8,12 @@
 
 use ndarray::Array2;
 use neighborhood::two_opt::RandomTwoOpt;
-use optimum::core::{
-    neighborhood::{
+use optimum::{
+    core::{stop_criterion::IterCriterion, Problem, StopCriterion},
+    metaheuristics::neighborhood::{
         explorers::{BestImprovement, Finite},
         Move,
     },
-    stop_criterion::IterCriterion,
-    Problem, StopCriterion,
 };
 use problem::{Tsp, TspSolution};
 

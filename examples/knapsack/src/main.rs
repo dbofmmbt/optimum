@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use optimum::core::{neighborhood::Move, Problem};
+use optimum::{core::Problem, metaheuristics::neighborhood::Move};
 use rand::thread_rng;
 
 use crate::{

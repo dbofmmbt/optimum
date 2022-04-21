@@ -3,7 +3,6 @@
 //!
 //! [Problem] and [Solver] are the core traits.
 //!
-pub mod neighborhood;
 mod problem;
 pub mod solver;
 pub mod stop_criterion;

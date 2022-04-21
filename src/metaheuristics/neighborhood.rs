@@ -1,6 +1,6 @@
 #![allow(missing_docs)]
 
-use super::{compare_values, Comparison, Evaluation, Problem};
+use crate::core::{compare_values, Comparison, Evaluation, Problem};
 
 pub trait Move<P: Problem> {
     fn apply(&self, problem: &P, evaluation: Evaluation<P>) -> Evaluation<P>;
