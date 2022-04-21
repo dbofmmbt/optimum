@@ -9,10 +9,10 @@
 use ndarray::Array2;
 use neighborhood::two_opt::RandomTwoOpt;
 use optimum::{
-    core::{stop_criterion::IterCriterion, Problem, StopCriterion},
+    core::{stop_criterion::IterCriterion, Problem},
     metaheuristics::neighborhood::{
-        explorers::{BestImprovement, Finite},
-        Move,
+        explorers::Finite,
+        local_search::{LocalSearch, SteepestAscent},
     },
 };
 use problem::{Tsp, TspSolution};
@@ -32,32 +32,26 @@ fn main() {
         cities: (0..CITIES).collect(),
     });
 
-    println!("Initial solution: {:?}", evaluation.solution());
-    println!("Current value: {}", evaluation.value());
+    println!(
+        "Initial solution: {:?}, value: {}",
+        evaluation.solution(),
+        evaluation.value()
+    );
 
     let mut stop_criterion = IterCriterion::<Tsp>::new(500);
 
     // TODO substitute this ad-hoc solver for a generic, neighborhood-based one.
 
-    while !stop_criterion.should_stop() {
-        let mut neighborhood = Finite::new(
-            RandomTwoOpt {
-                rng: thread_rng(),
-                solution: evaluation.solution(),
-            },
-            100,
-        );
-        let mut explorer = BestImprovement::new(&tsp, &mut neighborhood, &evaluation);
+    let neighborhood = Finite::new(RandomTwoOpt { rng: thread_rng() }, 100);
+    let mut local_search = SteepestAscent::new(neighborhood);
 
-        match explorer.next() {
-            Some(movement) => evaluation = movement.apply(&tsp, evaluation),
-            None => break,
-        };
-        stop_criterion.update(evaluation.value());
-        println!("Current value: {}", evaluation.value());
-    }
+    evaluation = local_search.reach_local_optima(&tsp, evaluation, &mut stop_criterion);
 
-    println!("Final solution: {:?}", evaluation.solution());
+    println!(
+        "Final solution: {:?}, value: {}",
+        evaluation.solution(),
+        evaluation.value()
+    );
 }
 
 pub mod neighborhood;

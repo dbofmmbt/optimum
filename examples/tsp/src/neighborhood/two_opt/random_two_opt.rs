@@ -1,19 +1,23 @@
+use optimum::{core::Evaluation, metaheuristics::neighborhood::Neighborhood};
 use rand::Rng;
 
-use crate::problem::TspSolution;
+use crate::problem::Tsp;
 
 use super::TwoOptMove;
 
-pub struct RandomTwoOpt<'a, R> {
+pub struct RandomTwoOpt<R> {
     pub rng: R,
-    pub solution: &'a TspSolution,
 }
 
-impl<R: Rng> Iterator for RandomTwoOpt<'_, R> {
-    type Item = TwoOptMove;
+impl<R: Rng> Neighborhood<Tsp> for RandomTwoOpt<R> {
+    type Move = TwoOptMove;
 
-    fn next(&mut self) -> Option<Self::Item> {
-        let range = 0..self.solution.cities.len();
+    fn next_neighbor(
+        &mut self,
+        _problem: &Tsp,
+        evaluation: &Evaluation<Tsp>,
+    ) -> Option<Self::Move> {
+        let range = 0..evaluation.solution().cities.len();
         Some(TwoOptMove(
             self.rng.gen_range(range.clone()),
             self.rng.gen_range(range),

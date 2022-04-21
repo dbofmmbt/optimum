@@ -2,73 +2,73 @@ use std::marker::PhantomData;
 
 use crate::core::{compare_values, Comparison, Evaluation, Problem};
 
-use super::Move;
+use super::{Move, Neighborhood};
 
-pub struct FirstImprovement<'n, 'p, P: Problem, N> {
-    neighborhood: &'n mut N,
-    problem: &'p P,
-    evaluation: &'p Evaluation<P>,
+pub struct FirstImprovement<P, N> {
+    neighborhood: N,
+    _p: PhantomData<P>,
 }
 
-impl<'n, 'p, P: Problem, N> FirstImprovement<'n, 'p, P, N> {
-    pub fn new(problem: &'p P, neighborhood: &'n mut N, evaluation: &'p Evaluation<P>) -> Self {
+impl<P: Problem, N: Neighborhood<P>> FirstImprovement<P, N> {
+    pub fn new(neighborhood: N) -> Self {
         Self {
-            problem,
             neighborhood,
-            evaluation,
+            _p: PhantomData,
         }
     }
 }
 
-impl<'n, 'p, P, N> Iterator for FirstImprovement<'n, 'p, P, N>
+impl<P, N> Neighborhood<P> for FirstImprovement<P, N>
 where
     P: Problem,
-    N: Iterator,
-    N::Item: Move<P>,
+    N: Neighborhood<P>,
 {
-    type Item = N::Item;
+    type Move = N::Move;
 
-    fn next(&mut self) -> Option<Self::Item> {
+    fn next_neighbor(&mut self, problem: &P, evaluation: &Evaluation<P>) -> Option<Self::Move> {
         loop {
-            let r#move = self.neighborhood.next()?;
+            let r#move = self.neighborhood.next_neighbor(problem, evaluation)?;
 
-            if r#move.compare(self.problem, self.evaluation) == Comparison::Better {
+            if r#move.compare(problem, evaluation) == Comparison::Better {
                 return Some(r#move);
             }
         }
     }
 }
 
-pub struct BestImprovement<'n, 'p, P: Problem, N> {
-    neighborhood: &'n mut N,
-    problem: &'p P,
-    evaluation: &'p Evaluation<P>,
+impl<P: Problem, N: Neighborhood<P>> From<N> for FirstImprovement<P, N> {
+    fn from(neighborhood: N) -> Self {
+        Self::new(neighborhood)
+    }
 }
 
-impl<'n, 'p, P: Problem, N> BestImprovement<'n, 'p, P, N> {
-    pub fn new(problem: &'p P, neighborhood: &'n mut N, evaluation: &'p Evaluation<P>) -> Self {
+pub struct BestImprovement<P, N> {
+    neighborhood: N,
+    _p: PhantomData<P>,
+}
+
+impl<P: Problem, N: Neighborhood<P>> BestImprovement<P, N> {
+    pub fn new(neighborhood: N) -> Self {
         Self {
-            problem,
             neighborhood,
-            evaluation,
+            _p: PhantomData,
         }
     }
 }
 
-impl<'n, 'p, P, N> Iterator for BestImprovement<'n, 'p, P, N>
+impl<P, N> Neighborhood<P> for BestImprovement<P, N>
 where
     P: Problem,
-    N: Iterator,
-    N::Item: Move<P>,
+    N: Neighborhood<P>,
 {
-    type Item = N::Item;
+    type Move = N::Move;
 
-    fn next(&mut self) -> Option<Self::Item> {
-        let mut best = self.neighborhood.next()?;
-        let e = self.evaluation;
-        let p = self.problem;
+    fn next_neighbor(&mut self, problem: &P, evaluation: &Evaluation<P>) -> Option<Self::Move> {
+        let mut best = self.neighborhood.next_neighbor(problem, evaluation)?;
+        let e = evaluation;
+        let p = problem;
 
-        for r#move in self.neighborhood.by_ref() {
+        while let Some(r#move) = self.neighborhood.next_neighbor(problem, evaluation) {
             if compare_values::<P>(r#move.value(p, e), best.value(p, e)) == Comparison::Better {
                 best = r#move
             }
@@ -85,6 +85,15 @@ where
     }
 }
 
+impl<P: Problem, N: Neighborhood<P>> From<N> for BestImprovement<P, N> {
+    fn from(neighborhood: N) -> Self {
+        Self::new(neighborhood)
+    }
+}
+
+/// Neighborhood adapter to give bounds to an infinite neighborhood. Usually used when you have stochastic neighborhoods i.e. which generates their moves randomly.
+///
+/// After yielding a `None`, `Finite` will reset its internal state to yield `limit` more moves.
 pub struct Finite<P, N> {
     _phantom: PhantomData<P>,
     inner: N,
@@ -103,20 +112,20 @@ impl<P: Problem, N> Finite<P, N> {
     }
 }
 
-impl<P, N> Iterator for Finite<P, N>
+impl<P, N> Neighborhood<P> for Finite<P, N>
 where
     P: Problem,
-    N: Iterator,
-    N::Item: Move<P>,
+    N: Neighborhood<P>,
 {
-    type Item = <N as Iterator>::Item;
+    type Move = N::Move;
 
-    fn next(&mut self) -> Option<Self::Item> {
+    fn next_neighbor(&mut self, problem: &P, evaluation: &Evaluation<P>) -> Option<Self::Move> {
         if self.current == self.limit {
+            self.current = 0; // reset counter.
             None
         } else {
             self.current += 1;
-            self.inner.next()
+            self.inner.next_neighbor(problem, evaluation)
         }
     }
 }

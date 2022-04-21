@@ -2,6 +2,13 @@
 
 use crate::core::{compare_values, Comparison, Evaluation, Problem};
 
+/// Represents the surround of the current solution. Acts like an iterator of [Move]s to neighbors inside it.
+pub trait Neighborhood<P: Problem> {
+    type Move: Move<P>;
+
+    fn next_neighbor(&mut self, problem: &P, evaluation: &Evaluation<P>) -> Option<Self::Move>;
+}
+
 pub trait Move<P: Problem> {
     fn apply(&self, problem: &P, evaluation: Evaluation<P>) -> Evaluation<P>;
 
@@ -14,3 +21,4 @@ pub trait Move<P: Problem> {
 }
 
 pub mod explorers;
+pub mod local_search;
