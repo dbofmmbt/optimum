@@ -13,17 +13,16 @@ pub enum Objective {
 /// This trait is a core definition for the library, as every optimization task is related to a [Problem].
 ///
 /// ```
-/// # use ordered_float::NotNan;
 /// # use optimum::core::{Objective, Problem, Evaluation};
 ///
 /// struct Knapsack {
-///     max_weight: f64,
+///     max_weight: usize,
 ///     available_items: Vec<Item>,
 /// }
 ///
 /// struct Item {
-///     value: f64,
-///     weight: f64,
+///     value: usize,
+///     weight: usize,
 /// }
 ///
 /// impl Problem for Knapsack {
@@ -32,9 +31,7 @@ pub enum Objective {
 ///     /// Every position `i` of the [Vec] represents if item `i` was chosen
 ///     type Solution = Vec<bool>;
 ///     
-///     /// We can't use [f64] directly, because it isn't [Ord].
-///     type Value = NotNan<f64>;
-///     
+///     type Value = usize;
 ///     
 ///     fn objective_function(&self, solution: Self::Solution) -> Evaluation<Self> {
 ///         let score = self.available_items
@@ -43,9 +40,8 @@ pub enum Objective {
 ///                         .filter(|&(i, _)| solution[i])
 ///                         .map(|(_, item)| item.value)
 ///                         .sum();
-///         let value = NotNan::new(score).unwrap();
 ///
-///         Evaluation::new(solution, value)
+///         Evaluation::new(solution, score)
 ///     }
 /// }
 ///
