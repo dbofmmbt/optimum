@@ -34,6 +34,10 @@ where
             }
         }
     }
+
+    fn solution_changed(&mut self, evaluation: &Evaluation<P>) {
+        self.neighborhood.solution_changed(evaluation)
+    }
 }
 
 impl<P: Problem, N: Neighborhood<P>> From<N> for FirstImprovement<P, N> {
@@ -83,6 +87,10 @@ where
             None
         }
     }
+
+    fn solution_changed(&mut self, evaluation: &Evaluation<P>) {
+        self.neighborhood.solution_changed(evaluation)
+    }
 }
 
 impl<P: Problem, N: Neighborhood<P>> From<N> for BestImprovement<P, N> {
@@ -92,11 +100,9 @@ impl<P: Problem, N: Neighborhood<P>> From<N> for BestImprovement<P, N> {
 }
 
 /// Neighborhood adapter to give bounds to an infinite neighborhood. Usually used when you have stochastic neighborhoods i.e. which generates their moves randomly.
-///
-/// After yielding a `None`, `Finite` will reset its internal state to yield `limit` more moves.
 pub struct Finite<P, N> {
     _phantom: PhantomData<P>,
-    inner: N,
+    neighborhood: N,
     limit: usize,
     current: usize,
 }
@@ -105,7 +111,7 @@ impl<P: Problem, N> Finite<P, N> {
     pub fn new(neighborhood: N, limit: usize) -> Self {
         Finite {
             _phantom: PhantomData,
-            inner: neighborhood,
+            neighborhood,
             limit,
             current: 0,
         }
@@ -121,11 +127,15 @@ where
 
     fn next_neighbor(&mut self, problem: &P, evaluation: &Evaluation<P>) -> Option<Self::Move> {
         if self.current == self.limit {
-            self.current = 0; // reset counter.
             None
         } else {
             self.current += 1;
-            self.inner.next_neighbor(problem, evaluation)
+            self.neighborhood.next_neighbor(problem, evaluation)
         }
+    }
+
+    fn solution_changed(&mut self, evaluation: &Evaluation<P>) {
+        self.current = 0;
+        self.neighborhood.solution_changed(evaluation)
     }
 }

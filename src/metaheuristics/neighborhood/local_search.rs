@@ -73,6 +73,7 @@ where
     while !stop_criterion.should_stop() {
         if let Some(r#move) = neighborhood.next_neighbor(problem, &evaluation) {
             evaluation = r#move.apply(problem, evaluation);
+            neighborhood.solution_changed(&evaluation);
         }
         stop_criterion.update(evaluation.value());
     }
