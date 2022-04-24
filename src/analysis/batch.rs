@@ -154,10 +154,8 @@ impl<P: Problem, H> BatchResult<P, H> {
 
 impl<P, H> Debug for BatchResult<P, H>
 where
-    P: Problem + Debug,
-    P::Solution: Debug,
-    P::Value: Debug,
-    H: Debug,
+    P: Problem,
+    Execution<P, H>: Debug,
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("BatchResult")
