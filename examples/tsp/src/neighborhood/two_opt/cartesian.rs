@@ -13,6 +13,14 @@ pub struct CartesianTwoOpt {
     iter: Iter,
 }
 
+impl CartesianTwoOpt {
+    pub fn new(evaluation: &Evaluation<Tsp>) -> Self {
+        Self {
+            iter: iter(evaluation),
+        }
+    }
+}
+
 fn iter(evaluation: &Evaluation<Tsp>) -> Iter {
     let cities = &evaluation.solution().cities;
     (0..cities.len()).cartesian_product(0..cities.len())
