@@ -1,6 +1,6 @@
 use optimum::{
     core::{Evaluation, Problem},
-    metaheuristics::neighborhood::Move,
+    metaheuristics::neighborhood::{Move, Neighborhood},
 };
 
 use crate::problem::Tsp;
@@ -8,9 +8,9 @@ use crate::problem::Tsp;
 mod random_two_opt;
 pub use random_two_opt::RandomTwoOpt;
 
-pub trait TwoOpt: Iterator<Item = TwoOptMove> {}
+pub trait TwoOpt<P: Problem>: Neighborhood<P, Move = TwoOptMove> {}
 
-impl<T> TwoOpt for T where T: Iterator<Item = TwoOptMove> {}
+impl<T, P: Problem> TwoOpt<P> for T where T: Neighborhood<P, Move = TwoOptMove> {}
 
 #[derive(Debug, Clone, Copy)]
 pub struct TwoOptMove(pub usize, pub usize);
