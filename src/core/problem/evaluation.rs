@@ -8,6 +8,18 @@ pub struct Evaluation<P: Problem + ?Sized> {
     solution: P::Solution,
 }
 
+impl<P: Problem + ?Sized> Clone for Evaluation<P>
+where
+    P::Solution: Clone,
+{
+    fn clone(&self) -> Self {
+        Self {
+            value: self.value,
+            solution: self.solution.clone(),
+        }
+    }
+}
+
 impl<P: Problem + ?Sized> Debug for Evaluation<P>
 where
     P::Solution: Debug,
