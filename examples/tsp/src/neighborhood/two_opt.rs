@@ -8,6 +8,8 @@ use crate::problem::Tsp;
 mod random_two_opt;
 pub use random_two_opt::RandomTwoOpt;
 
+pub mod cartesian;
+
 pub trait TwoOpt<P: Problem>: Neighborhood<P, Move = TwoOptMove> {}
 
 impl<T, P: Problem> TwoOpt<P> for T where T: Neighborhood<P, Move = TwoOptMove> {}
