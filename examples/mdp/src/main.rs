@@ -10,7 +10,7 @@ use optimum::{
     analysis::batch::{Batch, BatchResult, Statistics},
     core::{solver::IterHook, stop_criterion::IterCriterion, Problem},
     metaheuristics::genetic::{
-        brkga::{Brkga, BrkgaHook, Params},
+        brkga::{Brkga, BrkgaHook, Params, RandomMemberBuilder},
         Decoder,
     },
 };
@@ -51,7 +51,7 @@ fn run<D: Decoder<P = MaximumDiversity>>(decoder: D, params: Params, seed: usize
     let build_solver = |seed, exec_number| {
         let rng = rand_pcg::Pcg64::seed_from_u64((seed + exec_number) as u64);
 
-        Brkga::new(&decoder, rng, params)
+        Brkga::new(&decoder, rng, params, RandomMemberBuilder)
     };
 
     let batch = Batch::builder()

@@ -22,13 +22,17 @@ use std::{num::NonZeroUsize, usize};
 
 use rand::{prelude::SliceRandom, Rng};
 
+mod member_builder;
+use member_builder::MemberBuilder;
+pub use member_builder::RandomMemberBuilder;
+
 /// The interface to execute the BRKGA algorithm.
 ///
 
 // TODO use a real doctest
 
 /// ```ignore
-/// let brkga = Brkga::new(decoder, rng, params);
+/// let brkga = Brkga::new(decoder, rng, params, RandomMemberBuilder);
 ///
 /// println!("Initial value: {}", brkga.best().value);
 ///
@@ -57,20 +61,20 @@ pub type BrkgaMember<D> = Member<RandomKey, <<D as Decoder>::P as Problem>::Valu
 
 impl<'a, R: Rng, D: Decoder> Brkga<'a, D, R> {
     /// Creates a new BRKGA instance, which solves the [Problem][crate::core::Problem] defined by the [Decoder].
-    pub fn new(decoder: &'a D, mut rng: R, params: Params) -> Self {
-        // TODO allow caller to pass a custom_builder
-        let random_member_builder = |_| {
-            let keys = {
-                let mut k = vec![0.0; params.member_size.get()].into_boxed_slice();
-                rng.fill(k.as_mut());
-                k
-            };
-
-            let value = decoder.decode_value(&keys);
-            Member { keys, value }
+    pub fn new(
+        decoder: &'a D,
+        mut rng: R,
+        params: Params,
+        mut member_builder: impl MemberBuilder<D, R>,
+    ) -> Self {
+        let mut ctx = member_builder::Ctx {
+            decoder,
+            rng: &mut rng,
+            member_size: params.member_size.get(),
         };
+        let builder = |number| member_builder.build(&mut ctx, number);
 
-        let current = Population::new(params.population_size.get(), random_member_builder);
+        let current = Population::new(params.population_size.get(), builder);
         let next = current.clone();
 
         Self {
