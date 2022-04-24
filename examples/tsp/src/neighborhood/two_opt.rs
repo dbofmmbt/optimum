@@ -31,3 +31,9 @@ impl Move<Tsp> for TwoOptMove {
         Evaluation::new(solution, value)
     }
 }
+
+impl From<(usize, usize)> for TwoOptMove {
+    fn from(t: (usize, usize)) -> Self {
+        TwoOptMove(t.0, t.1)
+    }
+}
