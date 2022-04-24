@@ -7,6 +7,8 @@ pub trait Neighborhood<P: Problem> {
     type Move: Move<P>;
 
     fn next_neighbor(&mut self, problem: &P, evaluation: &Evaluation<P>) -> Option<Self::Move>;
+
+    fn current_solution_changed(&mut self, _: &Evaluation<P>) {}
 }
 
 pub trait Move<P: Problem> {
