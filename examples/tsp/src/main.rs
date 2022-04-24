@@ -39,9 +39,9 @@ pub mod problem;
 fn main() {
     let tsp = problem_instance();
 
-    let stop_criterion = TimeCriterion::<Tsp>::new(Duration::from_secs(10));
+    let stop_criterion = TimeCriterion::<Tsp>::new(Duration::from_secs(5));
 
-    println!("Neighborhood-based solver.");
+    println!("Neighborhood-based solver");
     if !neighborhood(&tsp, stop_criterion.clone()).is_valid(&tsp) {
         panic!();
     }
@@ -64,20 +64,12 @@ fn neighborhood(tsp: &Tsp, mut stop_criterion: impl StopCriterion<Tsp>) -> TspSo
     let mut evaluation = tsp.objective_function(TspSolution {
         cities: (0..CITIES).collect(),
     });
-    println!(
-        "Initial solution: {:?}, value: {}",
-        evaluation.solution(),
-        evaluation.value()
-    );
+    println!("Initial solution's value: {}", evaluation.value());
     let neighborhood = Finite::new(RandomTwoOpt { rng: thread_rng() }, 100);
     let mut local_search = SteepestAscent::new(neighborhood);
 
     evaluation = local_search.reach_local_optima(tsp, evaluation, &mut stop_criterion);
-    println!(
-        "Final solution: {:?}, value: {}",
-        evaluation.solution(),
-        evaluation.value()
-    );
+    println!("Final solution's value: {}", evaluation.value());
 
     evaluation.into_solution()
 }
@@ -97,9 +89,9 @@ fn genetic(tsp: &Tsp, mut stop_criterion: impl StopCriterion<Tsp>) -> TspSolutio
         },
         RandomMemberBuilder,
     );
-    println!("Initial solution: {:?}", brkga.best().value);
+    println!("Initial solution's value: {:?}", brkga.best().value);
     brkga.solve(&mut stop_criterion, &mut EmptyHook);
-    println!("Final solution: {:?}", brkga.best().value);
+    println!("Final solution's value: {:?}", brkga.best().value);
 
     tsp_decoder.decode(&brkga.best().keys)
 }
