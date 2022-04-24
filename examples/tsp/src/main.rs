@@ -27,7 +27,7 @@ use problem::{Tsp, TspSolution};
 
 use rand::{thread_rng, Rng};
 
-use crate::genetic_decoder::TspDecoder;
+use crate::{genetic_decoder::TspDecoder, neighborhood::two_opt::cartesian::CartesianTwoOpt};
 
 const CITIES: usize = 100;
 
@@ -60,16 +60,25 @@ fn problem_instance() -> Tsp {
     Tsp { distances }
 }
 
-fn neighborhood(tsp: &Tsp, mut stop_criterion: impl StopCriterion<Tsp>) -> TspSolution {
-    let mut evaluation = tsp.objective_function(TspSolution {
+fn neighborhood(tsp: &Tsp, mut stop_criterion: impl StopCriterion<Tsp> + Clone) -> TspSolution {
+    let initial = tsp.objective_function(TspSolution {
         cities: (0..CITIES).collect(),
     });
-    println!("Initial solution's value: {}", evaluation.value());
-    let neighborhood = Finite::new(RandomTwoOpt { rng: thread_rng() }, 100);
+    println!("Initial solution's value: {}", initial.value());
+
+    println!("RandomTwoOpt");
+    let neighborhood = Finite::new(RandomTwoOpt { rng: thread_rng() }, CITIES * CITIES);
     let mut local_search = SteepestAscent::new(neighborhood);
 
-    evaluation = local_search.reach_local_optima(tsp, evaluation, &mut stop_criterion);
-    println!("Final solution's value: {}", evaluation.value());
+    let evaluation = local_search.reach_local_optima(tsp, initial.clone(), &mut stop_criterion);
+    println!("RandomTwoOpt solution's value: {}", evaluation.value());
+
+    println!("CartesianTwoOpt");
+    let neighborhood = CartesianTwoOpt::new(&initial);
+    let mut local_search = SteepestAscent::new(neighborhood);
+
+    let evaluation = local_search.reach_local_optima(tsp, initial, &mut stop_criterion.clone());
+    println!("CartesianTwoOpt solution's value: {}", evaluation.value());
 
     evaluation.into_solution()
 }
