@@ -4,6 +4,8 @@
 [![documentation](https://docs.rs/optimum/badge.svg)](https://docs.rs/optimum)
 [![build status](https://github.com/dbofmmbt/optimum/workflows/rust/badge.svg)](https://github.com/dbofmmbt/optimum/actions)
 
+As I started a full-time job and I'm not working with optimization, my motivation for developing `optimum` is low right now. I think it may already be useful and it may give you a taste of what an optimization framework could be in Rust.
+
 **Current state:** Some core components have their initial shape and may be used (feedback will be appreciated). There's a genetic metaheuristic ready (BRKGA) and I'm experimenting stuff for neighborhood-based components/metaheuristics.
 
 Be aware that some stuff **will** probably change, specially those I'm working right now. Some core stuff may be updated too, but this is less likely to happen.
