@@ -12,7 +12,7 @@ pub struct SelectionControl {
 impl SelectionControl {
     /// Initializes `SelectionControl` with the given quantity as the number of elements.
     pub fn new(quantity: usize) -> Self {
-        let already_chosen = vec![false; quantity as usize];
+        let already_chosen = vec![false; quantity];
 
         Self {
             already_chosen,

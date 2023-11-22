@@ -56,7 +56,7 @@ where
     ///     .unwrap();
     /// ```
     pub fn run(mut self) -> Option<BatchResult<P, H>> {
-        let executions = (1..=self.executions as usize)
+        let executions = (1..=self.executions)
             .flat_map(|exec_number| {
                 let start = Instant::now();
 

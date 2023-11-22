@@ -59,7 +59,7 @@ impl<T: Position> Coverage<T> {
         self.state
             .iter_mut()
             .enumerate()
-            .for_each(|(position, cover)| *cover += other.state[position] as u8);
+            .for_each(|(position, cover)| *cover += other.state[position]);
     }
 
     /// Marks all elements as uncovered. Useful to allow reuse of the coverage.

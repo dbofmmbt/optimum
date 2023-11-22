@@ -125,7 +125,7 @@ impl<'a, P: Problem> IntoIterator for &'a EliteSet<P> {
     }
 }
 
-impl<'a, P: Problem> IntoIterator for EliteSet<P> {
+impl<P: Problem> IntoIterator for EliteSet<P> {
     type Item = Evaluation<P>;
 
     type IntoIter = vec::IntoIter<Evaluation<P>>;
